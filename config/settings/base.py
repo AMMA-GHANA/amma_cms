@@ -39,11 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third party
-    'django_tailwind',
+    # 'django_tailwind',  # TODO: Setup django-tailwind
     'django_ckeditor_5',
     'widget_tweaks',
-    'crispy_forms',
-    'crispy_tailwind',
+    # 'crispy_forms',  # TODO: Enable after tailwind setup
+    # 'crispy_tailwind',
     'django_cleanup.apps.CleanupConfig',
 
     # Local apps
@@ -148,9 +148,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Crispy Forms (Tailwind)
-CRISPY_ALLOWED_TEMPLATE_PACKS = 'tailwind'
-CRISPY_TEMPLATE_PACK = 'tailwind'
+# Crispy Forms (Tailwind) - TODO: Enable after tailwind setup
+# CRISPY_ALLOWED_TEMPLATE_PACKS = 'tailwind'
+# CRISPY_TEMPLATE_PACK = 'tailwind'
 
 
 # CKEditor 5 Configuration
