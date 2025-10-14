@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}News & Updates{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">News & Updates</h1>
+        <p class="text-xl text-amma-gray mb-12">Stay informed about recent developments and announcements</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for article in articles %}
+                {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name date=article.published_date author=article.author.full_name %}
+            {% empty %}
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-amma-gray">No news articles available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if articles.has_other_pages %}
+            <div class="mt-12 flex justify-center">
+                <!-- Pagination will be added here -->
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

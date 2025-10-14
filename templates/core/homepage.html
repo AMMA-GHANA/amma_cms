@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section with Carousel -->
+<section class="hero-section relative h-screen min-h-[600px] overflow-hidden" x-data="{
+    activeSlide: 0,
+    totalSlides: {{ hero_slides|length }},
+    nextSlide() {
+        this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
+    },
+    prevSlide() {
+        this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
+    }
+}" x-init="setInterval(() => { nextSlide() }, 5000)">
+
+    <!-- Hero Slides -->
+    {% for slide in hero_slides %}
+        {% include 'components/_hero_slide.html' with slide=slide is_active=forloop.first %}
+    {% empty %}
+        <!-- Default slide if no slides exist -->
+        <div class="hero-slide active" style="background-image: linear-gradient(rgba(26, 26, 26, 0.5), rgba(26, 26, 26, 0.3)), url('{% static "images/default-hero.jpg" %}'); background-size: cover; background-position: center;">
+            <div class="container mx-auto px-4 h-full flex items-center">
+                <div class="hero-slide-content max-w-4xl">
+                    <h1 class="text-5xl md:text-6xl font-secondary font-bold text-white mb-4">
+                        Serving Our Community with Excellence
+                    </h1>
+                    <p class="text-xl md:text-2xl text-white opacity-95 mb-8">
+                        The Asokore Mampong Municipal Assembly is committed to transparent governance and community development.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Hero Navigation Arrows -->
+    {% if hero_slides|length > 1 %}
+        <button @click="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white p-3 rounded-full transition-all duration-300 z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <button @click="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white p-3 rounded-full transition-all duration-300 z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+
+        <!-- Slide Indicators -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {% for slide in hero_slides %}
+                <button @click="activeSlide = {{ forloop.counter0 }}" :class="activeSlide === {{ forloop.counter0 }} ? 'bg-amma-gold w-8' : 'bg-white bg-opacity-50 w-3'" class="h-3 rounded-full transition-all duration-300"></button>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Statistics Overlay -->
+    {% if statistics %}
+        <div class="absolute bottom-0 left-0 right-0 bg-amma-black bg-opacity-80 py-8">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {% for stat in statistics %}
+                        <div class="text-center text-white">
+                            <div class="text-4xl font-bold text-amma-gold mb-2">{{ stat.value }}</div>
+                            <div class="text-sm uppercase tracking-wide opacity-90">{{ stat.label }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Statistics Section (Full Version) -->
+{% if statistics %}
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for stat in statistics %}
+                {% include 'components/_stat.html' with label=stat.label value=stat.value icon=stat.icon %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- About Section -->
+{% if about_section %}
+<section id="about" class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">
+                {{ about_section.title }}
+            </h2>
+            <p class="text-xl text-amma-gray leading-relaxed">
+                {{ about_section.description }}
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-shadow duration-300">
+                <div class="w-16 h-16 bg-amma-gold bg-opacity-10 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-amma-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-4">{{ about_section.location_title }}</h3>
+                <p class="text-amma-gray leading-relaxed">{{ about_section.location_content }}</p>
+            </div>
+
+            <div class="bg-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-shadow duration-300">
+                <div class="w-16 h-16 bg-amma-gold bg-opacity-10 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-amma-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-4">{{ about_section.communities_title }}</h3>
+                <p class="text-amma-gray leading-relaxed">{{ about_section.communities_content }}</p>
+            </div>
+
+            <div class="bg-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-shadow duration-300">
+                <div class="w-16 h-16 bg-amma-gold bg-opacity-10 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-amma-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-4">{{ about_section.structure_title }}</h3>
+                <p class="text-amma-gray leading-relaxed">{{ about_section.structure_content }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Services Section -->
+{% if services %}
+<section id="services" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Services</h2>
+            <p class="text-xl text-amma-gray leading-relaxed">
+                Access essential municipal services and resources designed to serve our community efficiently.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in services %}
+                <div class="bg-amma-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amma-gold to-amma-gold-dark rounded-full flex items-center justify-center mb-6 text-white text-2xl">
+                        <i class="fas fa-{{ service.icon }}"></i>
+                    </div>
+                    <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-4">{{ service.name }}</h3>
+                    <p class="text-amma-gray leading-relaxed mb-6">{{ service.description }}</p>
+                    {% if service.link_url %}
+                        <a href="{{ service.link_url }}" class="inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                            {{ service.link_text }}
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12">
+            {% include 'components/_button.html' with text="View All Services" link="/services/" variant="primary" size="lg" icon=True %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured News Section -->
+{% if featured_news %}
+<section id="news" class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Latest News & Updates</h2>
+                <p class="text-xl text-amma-gray">Stay informed about recent developments and announcements.</p>
+            </div>
+            <a href="/news/" class="hidden md:inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                View All News
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for article in featured_news %}
+                {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name category_color="amma-gold" date=article.published_date author=article.author.full_name read_time=article.reading_time %}
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12 md:hidden">
+            {% include 'components/_button.html' with text="View All News" link="/news/" variant="primary" size="lg" icon=True %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Projects Section -->
+{% if featured_projects %}
+<section id="projects" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Featured Projects</h2>
+                <p class="text-xl text-amma-gray">Showcasing our commitment to community development and infrastructure.</p>
+            </div>
+            <a href="/projects/" class="hidden md:inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                View All Projects
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for project in featured_projects %}
+                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
+                    <div class="relative overflow-hidden h-64">
+                        {% if project.primary_image %}
+                            <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy">
+                        {% endif %}
+                        <div class="absolute top-4 left-4">
+                            {% if project.status == 'completed' %}
+                                {% include 'components/_badge.html' with text="Completed" color="green" %}
+                            {% elif project.status == 'ongoing' %}
+                                {% include 'components/_badge.html' with text="Ongoing" color="orange" %}
+                            {% elif project.status == 'planned' %}
+                                {% include 'components/_badge.html' with text="Planned" color="blue" %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center text-sm text-amma-gray mb-3">
+                            <span class="bg-amma-gold-light text-amma-gold-dark px-2 py-1 rounded">{{ project.category.name }}</span>
+                            <span class="ml-auto">{{ project.start_date|date:"Y" }}</span>
+                        </div>
+
+                        <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3 line-clamp-2">
+                            <a href="/projects/{{ project.slug }}/">{{ project.title }}</a>
+                        </h3>
+
+                        <p class="text-amma-gray leading-relaxed mb-4 line-clamp-3 flex-grow">
+                            {{ project.description }}
+                        </p>
+
+                        {% if project.impact_text %}
+                            <div class="flex items-center text-sm text-amma-gray mb-4">
+                                <i class="fas fa-{{ project.impact_icon }} text-amma-gold mr-2"></i>
+                                <span>{{ project.impact_text }}</span>
+                            </div>
+                        {% endif %}
+
+                        <a href="/projects/{{ project.slug }}/" class="inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200 group mt-auto">
+                            Learn More
+                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12 md:hidden">
+            {% include 'components/_button.html' with text="View All Projects" link="/projects/" variant="primary" size="lg" icon=True %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Leadership Section -->
+{% if leadership %}
+<section id="leadership" class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Leadership</h2>
+            <p class="text-xl text-amma-gray leading-relaxed">
+                Meet the dedicated leaders serving our community with integrity and commitment.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for leader in leadership %}
+                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="aspect-square overflow-hidden">
+                        <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">{{ leader.full_name }}</h3>
+                        <p class="text-amma-gold font-semibold mb-4">{{ leader.position }}</p>
+                        {% if leader.bio %}
+                            <p class="text-amma-gray leading-relaxed text-sm">{{ leader.bio|truncatewords:25 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12">
+            {% include 'components/_button.html' with text="View All Leadership" link="/staff/" variant="outline" size="lg" %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-r from-amma-gold to-amma-gold-dark text-amma-black">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-4xl md:text-5xl font-secondary font-bold mb-6">Get in Touch with Us</h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Have questions or need assistance? Our team is here to help you with all your municipal service needs.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            {% include 'components/_button.html' with text="Contact Us" link="/contact/" variant="secondary" size="lg" icon=True %}
+            {% include 'components/_button.html' with text="View Services" link="/services/" variant="outline" size="lg" %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

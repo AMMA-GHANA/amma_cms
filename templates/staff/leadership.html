@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Leadership{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Leadership Team</h1>
+        <p class="text-xl text-amma-gray mb-12">Meet our dedicated leaders</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for leader in leadership %}
+                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light">
+                    <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-80 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">{{ leader.full_name }}</h3>
+                        <p class="text-amma-gold font-semibold">{{ leader.position }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-amma-gray">No leadership members listed.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

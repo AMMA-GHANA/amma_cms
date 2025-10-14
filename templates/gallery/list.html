@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gallery{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Gallery</h1>
+        <p class="text-xl text-amma-gray mb-12">View photos from our events and activities</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {% for image in images %}
+                <div class="aspect-square overflow-hidden rounded-amma shadow-amma-light hover:shadow-amma-medium transition-all duration-300">
+                    <img src="{{ image.image.url }}" alt="{{ image.title }}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                </div>
+            {% empty %}
+                <div class="col-span-4 text-center py-12">
+                    <p class="text-amma-gray">No images available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

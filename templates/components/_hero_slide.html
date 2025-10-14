@@ -1,0 +1,40 @@
+{% comment %}
+Hero Slide Component
+Parameters:
+  - slide: HeroSlide object
+  - is_active: Boolean for initial active state (default: False)
+{% endcomment %}
+
+<div
+    class="hero-slide {% if is_active %}active{% endif %}"
+    style="background-image: linear-gradient(rgba(26, 26, 26, 0.5), rgba(26, 26, 26, 0.3)), url('{{ slide.image.url }}'); background-size: cover; background-position: center;"
+    x-show="activeSlide === {{ forloop.counter0|default:0 }}"
+    x-transition:enter="transition ease-out duration-700"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-700"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+>
+    <div class="container mx-auto px-4 h-full flex items-center">
+        <div class="hero-slide-content max-w-4xl">
+            <h1 class="text-5xl md:text-6xl font-secondary font-bold text-white mb-4 animate-fade-in-up">
+                {{ slide.title }}
+            </h1>
+            <p class="text-xl md:text-2xl text-white opacity-95 mb-8 animate-fade-in-up animation-delay-200">
+                {{ slide.subtitle }}
+            </p>
+            {% if slide.button_text and slide.button_link %}
+                <a
+                    href="{{ slide.button_link }}"
+                    class="inline-block bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold px-8 py-4 rounded-amma transition-all duration-300 transform hover:-translate-y-1 shadow-amma-medium animate-fade-in-up animation-delay-400"
+                >
+                    {{ slide.button_text }}
+                    <svg class="inline-block w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>

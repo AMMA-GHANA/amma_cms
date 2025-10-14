@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Documents{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Documents</h1>
+        <p class="text-xl text-amma-gray mb-12">Download important documents and resources</p>
+
+        <div class="space-y-4">
+            {% for doc in documents %}
+                <div class="bg-white rounded-amma p-6 shadow-amma-light hover:shadow-amma-medium transition-all duration-300 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold text-amma-black mb-2">{{ doc.title }}</h3>
+                        <p class="text-amma-gray text-sm">{{ doc.file_type }} • {{ doc.file_size }}</p>
+                    </div>
+                    <a href="{% url 'documents:download' doc.pk %}" class="bg-amma-gold text-amma-black px-6 py-3 rounded-amma hover:bg-amma-gold-dark transition-colors">
+                        Download
+                    </a>
+                </div>
+            {% empty %}
+                <div class="text-center py-12">
+                    <p class="text-amma-gray">No documents available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

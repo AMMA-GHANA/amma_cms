@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ project.title }}{% endblock %}
+
+{% block content %}
+<article class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">{{ project.title }}</h1>
+
+        {% if project.primary_image %}
+            <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-auto rounded-amma mb-8 max-h-[600px] object-cover">
+        {% endif %}
+
+        <div class="prose prose-lg max-w-none">
+            {{ project.description }}
+        </div>
+    </div>
+</article>
+{% endblock %}

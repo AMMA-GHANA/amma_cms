@@ -1,0 +1,75 @@
+{% comment %}
+Generic Card Component for News/Projects
+Parameters:
+  - title: Card title (required)
+  - image: Image URL (required)
+  - excerpt: Short description text (required)
+  - link: URL to full content (required)
+  - category: Category name (optional)
+  - category_color: Category badge color (optional, default: amma-gold)
+  - date: Display date (optional)
+  - author: Author name (optional)
+  - read_time: Reading time in minutes (optional)
+{% endcomment %}
+
+<div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
+    <div class="relative overflow-hidden h-56">
+        <img
+            src="{{ image }}"
+            alt="{{ title }}"
+            class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            loading="lazy"
+        >
+        {% if category %}
+            <span class="absolute top-4 left-4 bg-{{ category_color|default:'amma-gold' }} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                {{ category }}
+            </span>
+        {% endif %}
+        {% if read_time %}
+            <span class="absolute top-4 right-4 bg-amma-black bg-opacity-70 text-white text-xs px-3 py-1 rounded-full">
+                {{ read_time }} min read
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="p-6 flex-grow flex flex-col">
+        {% if date or author %}
+            <div class="flex items-center text-sm text-amma-gray mb-3 space-x-4">
+                {% if date %}
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        {{ date|date:"M d, Y" }}
+                    </span>
+                {% endif %}
+                {% if author %}
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                        {{ author }}
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3 line-clamp-2 hover:text-amma-gold transition-colors duration-200">
+            <a href="{{ link }}">{{ title }}</a>
+        </h3>
+
+        <p class="text-amma-gray leading-relaxed mb-4 line-clamp-3 flex-grow">
+            {{ excerpt }}
+        </p>
+
+        <a
+            href="{{ link }}"
+            class="inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200 group mt-auto"
+        >
+            Read More
+            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </a>
+    </div>
+</div>

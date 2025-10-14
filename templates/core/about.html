@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">About AMMA</h1>
+        <p class="text-xl text-amma-gray mb-12">{{ about_section.title|default:"Learn more about Asokore Mampong Municipal Assembly" }}</p>
+
+        <div class="prose prose-lg max-w-none">
+            {{ about_section.description|default:"The Asokore Mampong Municipal Assembly is committed to serving our community with excellence and transparent governance." }}
+        </div>
+
+        {% if statistics %}
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-16">
+                {% for stat in statistics %}
+                    {% include 'components/_stat.html' with label=stat.label value=stat.value icon=stat.icon %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

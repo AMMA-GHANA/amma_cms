@@ -1,0 +1,69 @@
+{% comment %}
+Button Component
+Parameters:
+  - text: Button text (required)
+  - link: URL for the button (required)
+  - variant: Button style variant (optional, default: primary)
+    Options: primary, outline, secondary
+  - size: Button size (optional, default: md)
+    Options: sm, md, lg
+  - icon: Show icon (optional, default: False)
+{% endcomment %}
+
+{% if variant == "outline" %}
+    {# Outline Button #}
+    <a
+        href="{{ link }}"
+        class="inline-flex items-center justify-center border-2 border-amma-gold text-amma-gold hover:bg-amma-gold hover:text-amma-black font-semibold
+        {% if size == 'sm' %}px-4 py-2 text-sm
+        {% elif size == 'lg' %}px-8 py-4 text-lg
+        {% else %}px-6 py-3
+        {% endif %}
+        rounded-amma transition-all duration-300 transform hover:-translate-y-1 shadow-amma-light hover:shadow-amma-medium"
+    >
+        {{ text }}
+        {% if icon %}
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+        {% endif %}
+    </a>
+
+{% elif variant == "secondary" %}
+    {# Secondary Button #}
+    <a
+        href="{{ link }}"
+        class="inline-flex items-center justify-center bg-amma-charcoal hover:bg-amma-black text-white font-semibold
+        {% if size == 'sm' %}px-4 py-2 text-sm
+        {% elif size == 'lg' %}px-8 py-4 text-lg
+        {% else %}px-6 py-3
+        {% endif %}
+        rounded-amma transition-all duration-300 transform hover:-translate-y-1 shadow-amma-light hover:shadow-amma-medium"
+    >
+        {{ text }}
+        {% if icon %}
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+        {% endif %}
+    </a>
+
+{% else %}
+    {# Primary Button (default) #}
+    <a
+        href="{{ link }}"
+        class="inline-flex items-center justify-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold
+        {% if size == 'sm' %}px-4 py-2 text-sm
+        {% elif size == 'lg' %}px-8 py-4 text-lg
+        {% else %}px-6 py-3
+        {% endif %}
+        rounded-amma transition-all duration-300 transform hover:-translate-y-1 shadow-amma-medium hover:shadow-amma-dark"
+    >
+        {{ text }}
+        {% if icon %}
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+        {% endif %}
+    </a>
+{% endif %}

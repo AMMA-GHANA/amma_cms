@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Our Projects{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Projects</h1>
+        <p class="text-xl text-amma-gray mb-12">Development projects and infrastructure initiatives serving our community</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for project in projects %}
+                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300">
+                    {% if project.primary_image %}
+                        <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-64 object-cover">
+                    {% endif %}
+                    <div class="p-6">
+                        <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3">{{ project.title }}</h3>
+                        <p class="text-amma-gray">{{ project.description|truncatewords:25 }}</p>
+                        <a href="/projects/{{ project.slug }}/" class="text-amma-gold hover:text-amma-gold-dark mt-4 inline-block">Learn More →</a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-amma-gray">No projects available at the moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

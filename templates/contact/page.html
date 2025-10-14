@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-amma-white">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Contact Us</h1>
+        <p class="text-xl text-amma-gray mb-12">Get in touch with us for any inquiries</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+                <h2 class="text-2xl font-secondary font-semibold text-amma-black mb-6">Send us a message</h2>
+                <form method="post" action="{% url 'contact:submit' %}" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="p-4 rounded-amma {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div>
+                        <label class="block text-amma-black font-semibold mb-2">Name *</label>
+                        <input type="text" name="name" required class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:outline-none focus:border-amma-gold">
+                    </div>
+
+                    <div>
+                        <label class="block text-amma-black font-semibold mb-2">Email *</label>
+                        <input type="email" name="email" required class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:outline-none focus:border-amma-gold">
+                    </div>
+
+                    <div>
+                        <label class="block text-amma-black font-semibold mb-2">Phone</label>
+                        <input type="tel" name="phone" class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:outline-none focus:border-amma-gold">
+                    </div>
+
+                    <div>
+                        <label class="block text-amma-black font-semibold mb-2">Subject *</label>
+                        <select name="subject" required class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:outline-none focus:border-amma-gold">
+                            <option value="general">General Inquiry</option>
+                            <option value="complaint">Complaint</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="service">Service Request</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-amma-black font-semibold mb-2">Message *</label>
+                        <textarea name="message" required rows="6" class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:outline-none focus:border-amma-gold"></textarea>
+                    </div>
+
+                    <button type="submit" class="bg-amma-gold text-amma-black px-8 py-4 rounded-amma hover:bg-amma-gold-dark transition-colors font-semibold">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-secondary font-semibold text-amma-black mb-6">Contact Information</h2>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-semibold text-amma-black mb-2">Address</h3>
+                        <p class="text-amma-gray">{{ site_settings.address|default:"Asokore Mampong, Kumasi" }}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-amma-black mb-2">Phone</h3>
+                        <p class="text-amma-gray">{{ site_settings.phone|default:"+233 123 456 789" }}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-amma-black mb-2">Email</h3>
+                        <p class="text-amma-gray">{{ site_settings.email|default:"info@amma.gov.gh" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

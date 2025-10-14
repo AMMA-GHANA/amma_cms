@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.core.views import homepage
 
 # Customize admin site
 admin.site.site_header = "AMMA CMS Administration"
@@ -26,7 +25,19 @@ admin.site.site_title = "AMMA CMS Admin"
 admin.site.index_title = "Welcome to AMMA Content Management System"
 
 urlpatterns = [
-    path('', homepage, name='homepage'),
+    # Core pages (homepage, about)
+    path('', include('apps.core.urls')),
+
+    # App URLs
+    path('news/', include('apps.news.urls')),
+    path('projects/', include('apps.projects.urls')),
+    path('staff/', include('apps.staff.urls')),
+    path('services/', include('apps.services.urls')),
+    path('documents/', include('apps.documents.urls')),
+    path('gallery/', include('apps.gallery.urls')),
+    path('contact/', include('apps.contact.urls')),
+
+    # Admin and CKEditor
     path('admin/', admin.site.urls),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]

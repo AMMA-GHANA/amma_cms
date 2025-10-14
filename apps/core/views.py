@@ -1,61 +1,48 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from .models import HeroSlide, Statistic, AboutSection
+from apps.services.models import Service
+from apps.news.models import NewsArticle
+from apps.projects.models import Project
+from apps.staff.models import StaffMember
 
 
 def homepage(request):
-    """Temporary homepage view"""
-    return HttpResponse("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>AMMA CMS</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    margin: 0;
-                    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-                    color: #d4af37;
-                }
-                .container {
-                    text-align: center;
-                    padding: 2rem;
-                }
-                h1 {
-                    font-size: 3rem;
-                    margin-bottom: 1rem;
-                }
-                p {
-                    font-size: 1.2rem;
-                    color: #f8f8f8;
-                    margin-bottom: 2rem;
-                }
-                a {
-                    display: inline-block;
-                    padding: 12px 30px;
-                    background-color: #d4af37;
-                    color: #1a1a1a;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    font-weight: bold;
-                    transition: all 0.3s ease;
-                }
-                a:hover {
-                    background-color: #b8941f;
-                    transform: translateY(-2px);
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🏛️ AMMA CMS</h1>
-                <p>Asokore Mampong Municipal Assembly</p>
-                <p>Content Management System</p>
-                <a href="/admin/">Go to Admin Panel</a>
-            </div>
-        </body>
-        </html>
-    """)
+    """
+    Homepage view with all dynamic content sections.
+
+    Displays:
+    - Hero carousel slides
+    - Statistics counters
+    - About section
+    - Featured services
+    - Featured news articles
+    - Featured projects
+    - Leadership team
+    """
+    context = {
+        'hero_slides': HeroSlide.objects.filter(is_active=True).order_by('order')[:8],
+        'statistics': Statistic.objects.filter(is_active=True).order_by('order')[:4],
+        'about_section': AboutSection.load(),
+        'services': Service.objects.filter(is_active=True).order_by('order')[:6],
+        'featured_news': NewsArticle.objects.filter(
+            status='published',
+            is_featured=True
+        ).select_related('category', 'author').order_by('-published_date')[:3],
+        'featured_projects': Project.objects.filter(
+            is_featured=True
+        ).prefetch_related('images').order_by('order')[:3],
+        'leadership': StaffMember.objects.filter(
+            position_type='leadership',
+            is_active=True
+        ).select_related('department').order_by('display_order')[:6]
+    }
+    return render(request, 'core/homepage.html', context)
+
+
+def about_page(request):
+    """About page view."""
+    context = {
+        'about_section': AboutSection.load(),
+        'statistics': Statistic.objects.filter(is_active=True).order_by('order'),
+    }
+    return render(request, 'core/about.html', context)
