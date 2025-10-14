@@ -67,12 +67,12 @@
                 <!-- Desktop Menu -->
                 <div class="hidden lg:flex items-center space-x-8">
                     <a href="/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200 {% if request.path == '/' %}text-amma-gold{% endif %}">Home</a>
-                    <a href="/about/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">About</a>
-                    <a href="/services/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Services</a>
-                    <a href="/news/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">News</a>
-                    <a href="/projects/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Projects</a>
-                    <a href="/staff/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Leadership</a>
-                    <a href="/contact/" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Contact</a>
+                    <a href="/#about" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">About</a>
+                    <a href="/#services" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Services</a>
+                    <a href="/#news" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">News</a>
+                    <a href="/#projects" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Projects</a>
+                    <a href="/#leadership" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Leadership</a>
+                    <a href="/#contact" class="text-amma-black hover:text-amma-gold font-medium transition-colors duration-200">Contact</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -105,13 +105,13 @@
             @click.away="mobileMenuOpen = false"
         >
             <div class="container mx-auto px-4 py-4 space-y-2">
-                <a href="/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">Home</a>
-                <a href="/about/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">About</a>
-                <a href="/services/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">Services</a>
-                <a href="/news/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">News</a>
-                <a href="/projects/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">Projects</a>
-                <a href="/staff/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">Leadership</a>
-                <a href="/contact/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200">Contact</a>
+                <a href="/" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">Home</a>
+                <a href="/#about" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">About</a>
+                <a href="/#services" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">Services</a>
+                <a href="/#news" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">News</a>
+                <a href="/#projects" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">Projects</a>
+                <a href="/#leadership" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">Leadership</a>
+                <a href="/#contact" class="block py-2 px-4 text-amma-black hover:bg-amma-gold-light rounded transition-colors duration-200" @click="mobileMenuOpen = false">Contact</a>
             </div>
         </div>
     </nav>
