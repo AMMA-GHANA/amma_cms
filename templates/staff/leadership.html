@@ -12,7 +12,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {% for leader in leadership %}
                 <div class="bg-white rounded-amma overflow-hidden shadow-amma-light">
-                    <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-80 object-cover">
+                    {% if leader.photo %}
+                        <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-80 object-cover">
+                    {% else %}
+                        <div class="w-full h-80 bg-amma-gray-light flex items-center justify-center">
+                            <svg class="w-24 h-24 text-amma-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
                     <div class="p-6 text-center">
                         <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">{{ leader.full_name }}</h3>
                         <p class="text-amma-gold font-semibold">{{ leader.position }}</p>

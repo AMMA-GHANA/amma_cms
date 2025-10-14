@@ -74,19 +74,6 @@
     {% endif %}
 </section>
 
-<!-- Statistics Section (Full Version) -->
-{% if statistics %}
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for stat in statistics %}
-                {% include 'components/_stat.html' with label=stat.label value=stat.value icon=stat.icon %}
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
 <!-- About Section -->
 {% if about_section %}
 <section id="about" class="py-20 bg-amma-white">
@@ -193,7 +180,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for article in featured_news %}
-                {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name category_color="amma-gold" date=article.published_date author=article.author.full_name read_time=article.reading_time %}
+                {% if article.featured_image %}
+                    {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name category_color="amma-gold" date=article.published_date author=article.author.full_name read_time=article.reading_time %}
+                {% else %}
+                    {% include 'components/_card.html' with title=article.title image='' excerpt=article.excerpt link=article.get_absolute_url category=article.category.name category_color="amma-gold" date=article.published_date author=article.author.full_name read_time=article.reading_time %}
+                {% endif %}
             {% endfor %}
         </div>
 
@@ -224,9 +215,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for project in featured_projects %}
                 <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
-                    <div class="relative overflow-hidden h-64">
+                    <div class="relative overflow-hidden h-64 {% if not project.primary_image %}bg-amma-gray-light{% endif %}">
                         {% if project.primary_image %}
                             <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gray-light to-amma-gray">
+                            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
                         {% endif %}
                         <div class="absolute top-4 left-4">
                             {% if project.status == 'completed' %}
@@ -291,17 +288,23 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for leader in leadership %}
-                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
-                    </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">{{ leader.full_name }}</h3>
-                        <p class="text-amma-gold font-semibold mb-4">{{ leader.position }}</p>
-                        {% if leader.bio %}
-                            <p class="text-amma-gray leading-relaxed text-sm">{{ leader.bio|truncatewords:25 }}</p>
+                <div class="bg-white rounded-amma shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-1 py-10 px-8 text-center">
+                    <div class="w-[150px] h-[150px] rounded-full mx-auto mb-5 overflow-hidden border-4 border-gray-100 {% if not leader.photo %}bg-amma-gray-light{% endif %}">
+                        {% if leader.photo %}
+                        <img src="{{ leader.photo.url }}" alt="{{ leader.full_name }}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gray-light to-amma-gray">
+                            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
                         {% endif %}
                     </div>
+                    <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">{{ leader.full_name }}</h3>
+                    <p class="text-amma-gold font-semibold mb-4">{{ leader.position }}</p>
+                    {% if leader.bio %}
+                        <p class="text-amma-gray leading-relaxed text-sm">{{ leader.bio|truncatewords:25 }}</p>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -314,7 +317,7 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="py-20 bg-gradient-to-r from-amma-gold to-amma-gold-dark text-amma-black">
+<section id="contact" class="py-20 bg-gradient-to-r from-amma-gold to-amma-gold-dark text-amma-black">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-4xl md:text-5xl font-secondary font-bold mb-6">Get in Touch with Us</h2>
         <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
