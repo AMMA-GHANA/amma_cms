@@ -54,7 +54,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="font-primary bg-amma-white text-amma-black min-h-screen flex flex-col">
+<body id="top" class="font-primary bg-amma-white text-amma-black min-h-screen flex flex-col">
 
     <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-amma-gold text-amma-black px-4 py-2 z-50">
@@ -127,6 +127,13 @@
 
                     // Get the target section ID from the href
                     const targetId = this.getAttribute('href').substring(2); // Remove /# to get the ID
+
+                    // Special handling for "top" - scroll to very top of page
+                    if (targetId === 'top') {
+                        smoothScrollTo(0, 1000);
+                        return;
+                    }
+
                     const targetSection = document.getElementById(targetId);
 
                     if (targetSection) {
