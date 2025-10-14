@@ -32,7 +32,7 @@ def homepage(request):
             is_featured=True
         ).prefetch_related('images').order_by('order')[:3],
         'leadership': StaffMember.objects.filter(
-            position_type='leadership',
+            position_type__in=['leadership', 'management'],
             is_active=True
         ).select_related('department').order_by('display_order')[:6]
     }

@@ -138,3 +138,8 @@ class NewsArticle(models.Model):
         words = len(self.content.split())
         minutes = words // 200  # Average reading speed
         return max(1, minutes)
+
+    def get_absolute_url(self):
+        """Return the URL for this article"""
+        from django.urls import reverse
+        return reverse('news:detail', kwargs={'slug': self.slug})
