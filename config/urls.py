@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.core.views import homepage
 
 # Customize admin site
 admin.site.site_header = "AMMA CMS Administration"
@@ -25,11 +26,19 @@ admin.site.site_title = "AMMA CMS Admin"
 admin.site.index_title = "Welcome to AMMA Content Management System"
 
 urlpatterns = [
+    path('', homepage, name='homepage'),
     path('admin/', admin.site.urls),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
 
-# Serve media files in development
+# Development-only URLs
 if settings.DEBUG:
+    # Serve media and static files
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+    # Django Debug Toolbar
+    if 'debug_toolbar' in settings.INSTALLED_APPS:
+        urlpatterns += [
+            path('__debug__/', include('debug_toolbar.urls')),
+        ]
