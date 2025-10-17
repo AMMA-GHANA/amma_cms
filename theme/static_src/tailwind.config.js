@@ -42,6 +42,16 @@ module.exports = {
         // '../../**/*.py'
     ],
     theme: {
+        container: {
+            center: true,
+            padding: {
+                DEFAULT: '1.5rem',  // 24px on mobile
+                sm: '2rem',         // 32px on small screens
+                lg: '3rem',         // 48px on large screens
+                xl: '4rem',         // 64px on xl screens
+                '2xl': '5rem',      // 80px on 2xl screens
+            },
+        },
         extend: {
             colors: {
                 // AMMA Brand Colors
