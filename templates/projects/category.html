@@ -1,31 +1,499 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ category.name }} - Projects{% endblock %}
+{% block title %}{{ category.name }} Projects{% endblock %}
 
 {% block content %}
-<section class="py-20 bg-amma-white">
-    <div class="container mx-auto">
-        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">{{ category.name }}</h1>
-        <p class="text-xl text-amma-gray mb-12">{{ category.description }}</p>
+<!-- Hero Section with Search -->
+<section class="bg-gradient-to-br from-amma-gray-light to-amma-gray py-16 md:py-20">
+    <div class="container mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-white mb-4">{{ category.name }}</h1>
+        <p class="text-xl text-white/80 mb-8">{{ category.description|default:"Browse projects in this category" }}</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {% for project in projects %}
-                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light">
-                    {% if project.primary_image %}
-                        <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-64 object-cover">
-                    {% endif %}
-                    <div class="p-6">
-                        <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3">{{ project.title }}</h3>
-                        <p class="text-amma-gray">{{ project.description|truncatewords:25 }}</p>
+        <!-- Search Bar -->
+        <form method="get" action="{% url 'projects:category' category.slug %}" class="max-w-2xl mx-auto">
+            <div class="relative">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search projects by title, description, or location..."
+                    class="w-full px-6 py-4 pr-12 rounded-amma text-lg focus:outline-none focus:border-amma-gold border-2 border-white/10"
+                >
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-amma-gray-light hover:text-amma-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </div>
+            {% if selected_status %}
+                <input type="hidden" name="status" value="{{ selected_status }}">
+            {% endif %}
+            {% if sort_by %}
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+<!-- Main Content Section -->
+<section class="py-12 bg-amma-white">
+    <div class="container mx-auto">
+
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 text-sm text-amma-gray">
+                <li><a href="/" class="hover:text-amma-gold transition-colors">Home</a></li>
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></li>
+                <li><a href="{% url 'projects:list' %}" class="hover:text-amma-gold transition-colors">Projects</a></li>
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></li>
+                <li class="text-amma-black font-medium">{{ category.name }}</li>
+            </ol>
+        </nav>
+
+        <!-- Mobile Filter Button -->
+        <div class="lg:hidden mb-6">
+            <button
+                onclick="toggleFilterDrawer()"
+                class="w-full bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filters & Sort
+            </button>
+        </div>
+
+        <!-- Active Filters Display -->
+        {% if search_query or selected_status %}
+        <div class="mb-6 flex items-center gap-3 flex-wrap">
+            <span class="text-sm text-amma-gray-light">Active filters:</span>
+
+            {% if search_query %}
+            <div class="inline-flex items-center px-3 py-1 bg-amma-gold-light text-amma-black rounded-amma text-sm">
+                Search: "{{ search_query }}"
+                <a href="{% url 'projects:category' category.slug %}?{% if selected_status %}status={{ selected_status }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                   class="ml-2 hover:text-amma-gold-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if selected_status %}
+            <div class="inline-flex items-center px-3 py-1 bg-amma-gold-light text-amma-black rounded-amma text-sm">
+                Status: {{ selected_status|title }}
+                <a href="{% url 'projects:category' category.slug %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                   class="ml-2 hover:text-amma-gold-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'projects:category' category.slug %}" class="text-sm text-amma-gold hover:text-amma-gold-dark">Clear all</a>
+        </div>
+        {% endif %}
+
+        <!-- Results Count -->
+        <div class="mb-6">
+            <p class="text-sm text-amma-gray">
+                Showing {{ total_count }} project{{ total_count|pluralize }} in {{ category.name }}
+            </p>
+        </div>
+
+        <!-- 2-Column Layout: Main Content + Sidebar -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+
+            <!-- LEFT: Main Projects Area -->
+            <div class="order-2 lg:order-1">
+                {% if projects %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for project in projects %}
+                        <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-1">
+                            <!-- Project Image -->
+                            <div class="relative h-48 {% if not project.primary_image %}bg-amma-gray-light{% endif %}">
+                                {% if project.primary_image %}
+                                <img
+                                    src="{{ project.primary_image.image.url }}"
+                                    alt="{{ project.title }}"
+                                    class="w-full h-full object-cover"
+                                >
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gold-light to-amma-white">
+                                    <svg class="w-16 h-16 text-amma-gold opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <!-- Status Badge -->
+                                {% if project.status == 'ongoing' %}
+                                <span class="absolute top-3 right-3 px-3 py-1 bg-orange-500 text-white rounded-full text-xs font-semibold">
+                                    Ongoing
+                                </span>
+                                {% elif project.status == 'completed' %}
+                                <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
+                                    Completed
+                                </span>
+                                {% elif project.status == 'planned' %}
+                                <span class="absolute top-3 right-3 px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-semibold">
+                                    Planned
+                                </span>
+                                {% elif project.status == 'suspended' %}
+                                <span class="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white rounded-full text-xs font-semibold">
+                                    Suspended
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Card Content -->
+                            <div class="p-6">
+                                <!-- Title -->
+                                <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3 line-clamp-2">
+                                    <a href="{% url 'projects:detail' project.slug %}" class="hover:text-amma-gold transition-colors">
+                                        {{ project.title }}
+                                    </a>
+                                </h3>
+
+                                <!-- Description -->
+                                <p class="text-amma-gray text-sm mb-4 line-clamp-3">
+                                    {{ project.description }}
+                                </p>
+
+                                <!-- Metadata -->
+                                <div class="space-y-2 mb-4 text-xs text-amma-gray">
+                                    <!-- Location -->
+                                    {% if project.location %}
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        <span>{{ project.location }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Budget -->
+                                    {% if project.budget %}
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        </svg>
+                                        <span>GHS {{ project.budget|floatformat:2 }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Timeline -->
+                                    {% if project.start_date %}
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        <span>Started: {{ project.start_date|date:"M Y" }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Beneficiaries -->
+                                    {% if project.beneficiaries %}
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        <span>{{ project.beneficiaries }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- View Details Button -->
+                                <a
+                                    href="{% url 'projects:detail' project.slug %}"
+                                    class="block w-full text-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-4 rounded-amma transition-colors"
+                                >
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
+
+                    <!-- Pagination -->
+                    {% if projects.has_other_pages %}
+                    <div class="mt-12 flex justify-center items-center gap-2">
+                        {% if projects.has_previous %}
+                            <a href="?page=1{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                First
+                            </a>
+                            <a href="?page={{ projects.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Previous
+                            </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 bg-amma-gold text-amma-black font-semibold rounded-amma">
+                            Page {{ projects.number }} of {{ projects.paginator.num_pages }}
+                        </span>
+
+                        {% if projects.has_next %}
+                            <a href="?page={{ projects.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Next
+                            </a>
+                            <a href="?page={{ projects.paginator.num_pages }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Last
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-amma-gold-light rounded-full mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amma-gold">
+                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">No projects found</h3>
+                        <p class="text-amma-gray mb-6">
+                            {% if search_query or selected_status %}
+                                Try adjusting your filters or search terms.
+                            {% else %}
+                                No projects in this category yet.
+                            {% endif %}
+                        </p>
+                        {% if search_query or selected_status %}
+                        <a href="{% url 'projects:category' category.slug %}" class="inline-block bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors">
+                            Clear Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- RIGHT: Sidebar -->
+            <div class="order-1 lg:order-2">
+                <div class="hidden lg:block lg:sticky lg:top-24 space-y-6">
+
+                    <!-- Sort Dropdown -->
+                    <div>
+                        <label for="sort" class="block text-sm font-semibold text-amma-gray-light mb-2">Sort by</label>
+                        <select id="sort"
+                                onchange="window.location.href='{% url 'projects:category' category.slug %}?{% if selected_status %}status={{ selected_status }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}sort=' + this.value"
+                                class="w-full px-3 py-2 rounded-amma border border-gray-300 text-sm focus:outline-none focus:border-amma-gold">
+                            <option value="-is_featured" {% if sort_by == '-is_featured' %}selected{% endif %}>Featured First</option>
+                            <option value="-start_date" {% if sort_by == '-start_date' %}selected{% endif %}>Newest First</option>
+                            <option value="start_date" {% if sort_by == 'start_date' %}selected{% endif %}>Oldest First</option>
+                            <option value="-budget" {% if sort_by == '-budget' %}selected{% endif %}>Highest Budget</option>
+                            <option value="budget" {% if sort_by == 'budget' %}selected{% endif %}>Lowest Budget</option>
+                            <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Name (A-Z)</option>
+                            <option value="-title" {% if sort_by == '-title' %}selected{% endif %}>Name (Z-A)</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Filter by Status</h3>
+                        <div class="space-y-2">
+                            <!-- All Status -->
+                            <a href="{% url 'projects:category' category.slug %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if not selected_status %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9h18M3 15h18M3 21h18"></path>
+                                </svg>
+                                <span class="flex-1 font-medium">All Projects</span>
+                                <span class="text-sm opacity-75">({{ status_counts.all }})</span>
+                            </a>
+
+                            <!-- Planned -->
+                            <a href="{% url 'projects:category' category.slug %}?status=planned{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'planned' %}bg-blue-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-blue-50{% endif %}">
+                                <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                                <span class="flex-1 font-medium">Planned</span>
+                                <span class="text-sm opacity-75">({{ status_counts.planned }})</span>
+                            </a>
+
+                            <!-- Ongoing -->
+                            <a href="{% url 'projects:category' category.slug %}?status=ongoing{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'ongoing' %}bg-orange-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-orange-50{% endif %}">
+                                <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                                <span class="flex-1 font-medium">Ongoing</span>
+                                <span class="text-sm opacity-75">({{ status_counts.ongoing }})</span>
+                            </a>
+
+                            <!-- Completed -->
+                            <a href="{% url 'projects:category' category.slug %}?status=completed{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'completed' %}bg-green-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-green-50{% endif %}">
+                                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                                <span class="flex-1 font-medium">Completed</span>
+                                <span class="text-sm opacity-75">({{ status_counts.completed }})</span>
+                            </a>
+
+                            <!-- Suspended -->
+                            <a href="{% url 'projects:category' category.slug %}?status=suspended{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'suspended' %}bg-red-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-red-50{% endif %}">
+                                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                                <span class="flex-1 font-medium">Suspended</span>
+                                <span class="text-sm opacity-75">({{ status_counts.suspended }})</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Other Categories -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Other Categories</h3>
+                        <div class="space-y-2">
+                            <!-- All Categories -->
+                            <a href="{% url 'projects:list' %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_status %}status={{ selected_status }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9h18M3 15h18M3 21h18"></path>
+                                </svg>
+                                <span class="flex-1 font-medium">All Categories</span>
+                            </a>
+
+                            <!-- Category Buttons -->
+                            {% for cat in categories %}
+                            {% if cat.slug != category.slug %}
+                            <a href="{% url 'projects:category' cat.slug %}?{% if search_query %}q={{ search_query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                                </svg>
+                                <span class="flex-1 font-medium">{{ cat.name }}</span>
+                                <span class="text-sm opacity-75">({{ cat.project_count }})</span>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
                 </div>
-            {% empty %}
-                <div class="col-span-3 text-center py-12">
-                    <p class="text-amma-gray">No projects in this category yet.</p>
-                </div>
-            {% endfor %}
+            </div>
+
         </div>
     </div>
 </section>
+
+<!-- Mobile Filter Drawer -->
+<div id="filterDrawer" class="fixed inset-0 z-50 lg:hidden hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleFilterDrawer()"></div>
+
+    <!-- Drawer Content -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-amma shadow-amma-dark max-h-[80vh] overflow-y-auto">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-secondary font-semibold text-amma-black">Filters & Sort</h3>
+                <button onclick="toggleFilterDrawer()" class="text-amma-gray hover:text-amma-black">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="mb-6">
+                <label for="sort-mobile" class="block text-sm font-semibold text-amma-gray-light mb-2">Sort by</label>
+                <select id="sort-mobile"
+                        onchange="window.location.href='{% url 'projects:category' category.slug %}?{% if selected_status %}status={{ selected_status }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}sort=' + this.value"
+                        class="w-full px-3 py-2 rounded-amma border border-gray-300 text-sm focus:outline-none focus:border-amma-gold">
+                    <option value="-is_featured" {% if sort_by == '-is_featured' %}selected{% endif %}>Featured First</option>
+                    <option value="-start_date" {% if sort_by == '-start_date' %}selected{% endif %}>Newest First</option>
+                    <option value="start_date" {% if sort_by == 'start_date' %}selected{% endif %}>Oldest First</option>
+                    <option value="-budget" {% if sort_by == '-budget' %}selected{% endif %}>Highest Budget</option>
+                    <option value="budget" {% if sort_by == 'budget' %}selected{% endif %}>Lowest Budget</option>
+                    <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Name (A-Z)</option>
+                    <option value="-title" {% if sort_by == '-title' %}selected{% endif %}>Name (Z-A)</option>
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Filter by Status</h3>
+                <div class="space-y-2">
+                    <a href="{% url 'projects:category' category.slug %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if not selected_status %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9h18M3 15h18M3 21h18"></path>
+                        </svg>
+                        <span class="flex-1 font-medium">All Projects</span>
+                        <span class="text-sm opacity-75">({{ status_counts.all }})</span>
+                    </a>
+                    <a href="{% url 'projects:category' category.slug %}?status=planned{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'planned' %}bg-blue-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-blue-50{% endif %}">
+                        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                        <span class="flex-1 font-medium">Planned</span>
+                        <span class="text-sm opacity-75">({{ status_counts.planned }})</span>
+                    </a>
+                    <a href="{% url 'projects:category' category.slug %}?status=ongoing{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'ongoing' %}bg-orange-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-orange-50{% endif %}">
+                        <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                        <span class="flex-1 font-medium">Ongoing</span>
+                        <span class="text-sm opacity-75">({{ status_counts.ongoing }})</span>
+                    </a>
+                    <a href="{% url 'projects:category' category.slug %}?status=completed{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'completed' %}bg-green-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-green-50{% endif %}">
+                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                        <span class="flex-1 font-medium">Completed</span>
+                        <span class="text-sm opacity-75">({{ status_counts.completed }})</span>
+                    </a>
+                    <a href="{% url 'projects:category' category.slug %}?status=suspended{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_status == 'suspended' %}bg-red-500 text-white{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-red-50{% endif %}">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span class="flex-1 font-medium">Suspended</span>
+                        <span class="text-sm opacity-75">({{ status_counts.suspended }})</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Other Categories -->
+            <div>
+                <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Other Categories</h3>
+                <div class="space-y-2">
+                    <a href="{% url 'projects:list' %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_status %}status={{ selected_status }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9h18M3 15h18M3 21h18"></path>
+                        </svg>
+                        <span class="flex-1 font-medium">All Categories</span>
+                    </a>
+                    {% for cat in categories %}
+                    {% if cat.slug != category.slug %}
+                    <a href="{% url 'projects:category' cat.slug %}?{% if search_query %}q={{ search_query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                        </svg>
+                        <span class="flex-1 font-medium">{{ cat.name }}</span>
+                        <span class="text-sm opacity-75">({{ cat.project_count }})</span>
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Drawer Toggle Script -->
+<script>
+function toggleFilterDrawer() {
+    const drawer = document.getElementById('filterDrawer');
+    drawer.classList.toggle('hidden');
+}
+</script>
 {% endblock %}

@@ -4,17 +4,327 @@
 {% block title %}{{ project.title }}{% endblock %}
 
 {% block content %}
-<article class="py-20 bg-white">
-    <div class="container mx-auto">
-        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">{{ project.title }}</h1>
-
+<!-- Hero Section with Large Image -->
+<section class="relative bg-amma-gray-light">
+    <div class="relative h-96 overflow-hidden">
         {% if project.primary_image %}
-            <img src="{{ project.primary_image.image.url }}" alt="{{ project.title }}" class="w-full h-auto rounded-amma mb-8 max-h-[600px] object-cover">
+        <img
+            src="{{ project.primary_image.image.url }}"
+            alt="{{ project.title }}"
+            class="w-full h-full object-cover"
+        >
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gold-light to-amma-white">
+            <svg class="w-32 h-32 text-amma-gold opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
         {% endif %}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-        <div class="prose prose-lg max-w-none">
-            {{ project.description }}
+        <!-- Breadcrumb and Title Overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-8">
+            <div class="container mx-auto">
+                <!-- Breadcrumb -->
+                <nav class="mb-4">
+                    <ol class="flex items-center space-x-2 text-sm text-white/80">
+                        <li><a href="/" class="hover:text-white transition-colors">Home</a></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></li>
+                        <li><a href="{% url 'projects:list' %}" class="hover:text-white transition-colors">Projects</a></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></li>
+                        <li class="text-white font-medium">{{ project.title|truncatewords:6 }}</li>
+                    </ol>
+                </nav>
+
+                <h1 class="text-4xl md:text-5xl font-secondary font-bold text-white mb-4">{{ project.title }}</h1>
+
+                <!-- Badges -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Category Badge -->
+                    <span class="px-4 py-2 rounded-full text-sm font-semibold text-white" style="background-color: {{ project.category.color }};">
+                        {{ project.category.name }}
+                    </span>
+
+                    <!-- Status Badge -->
+                    {% if project.status == 'ongoing' %}
+                    <span class="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-semibold">
+                        Ongoing
+                    </span>
+                    {% elif project.status == 'completed' %}
+                    <span class="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-semibold">
+                        Completed
+                    </span>
+                    {% elif project.status == 'planned' %}
+                    <span class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-semibold">
+                        Planned
+                    </span>
+                    {% elif project.status == 'suspended' %}
+                    <span class="px-4 py-2 bg-red-500 text-white rounded-full text-sm font-semibold">
+                        Suspended
+                    </span>
+                    {% endif %}
+
+                    {% if project.is_featured %}
+                    <span class="px-4 py-2 bg-amma-gold text-amma-black rounded-full text-sm font-semibold flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        Featured
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-</article>
+</section>
+
+<!-- Main Content -->
+<section class="py-12 bg-amma-white">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left: Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <!-- Project Overview -->
+                <div class="bg-white rounded-amma shadow-amma-light p-8">
+                    <h2 class="text-2xl font-secondary font-bold text-amma-black mb-4">Project Overview</h2>
+                    <p class="text-amma-gray text-lg leading-relaxed">
+                        {{ project.description }}
+                    </p>
+                </div>
+
+                <!-- Detailed Description -->
+                {% if project.detailed_description %}
+                <div class="bg-white rounded-amma shadow-amma-light p-8">
+                    <h2 class="text-2xl font-secondary font-bold text-amma-black mb-4">Detailed Description</h2>
+                    <div class="prose prose-lg max-w-none text-amma-gray">
+                        {{ project.detailed_description|safe }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Image Gallery -->
+                {% if project.images.count > 1 %}
+                <div class="bg-white rounded-amma shadow-amma-light p-8">
+                    <h2 class="text-2xl font-secondary font-bold text-amma-black mb-6">Project Gallery</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for image in project.images.all %}
+                        <div class="relative group overflow-hidden rounded-amma">
+                            <img
+                                src="{{ image.image.url }}"
+                                alt="{{ image.caption|default:project.title }}"
+                                class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                            >
+                            {% if image.caption %}
+                            <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {{ image.caption }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Right: Sidebar Info Cards -->
+            <div class="space-y-6">
+
+                <!-- Key Information Card -->
+                <div class="bg-white rounded-amma shadow-amma-light p-6">
+                    <h3 class="text-lg font-secondary font-semibold text-amma-black mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Key Information
+                    </h3>
+                    <div class="space-y-4">
+                        <!-- Location -->
+                        {% if project.location %}
+                        <div class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-amma-gold flex-shrink-0 mt-1">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <div>
+                                <div class="text-xs text-amma-gray-light font-medium uppercase mb-1">Location</div>
+                                <div class="text-sm text-amma-black font-semibold">{{ project.location }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Budget -->
+                        {% if project.budget %}
+                        <div class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-amma-gold flex-shrink-0 mt-1">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <div>
+                                <div class="text-xs text-amma-gray-light font-medium uppercase mb-1">Budget</div>
+                                <div class="text-sm text-amma-black font-semibold">GHS {{ project.budget|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Status -->
+                        <div class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-amma-gold flex-shrink-0 mt-1">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                            <div>
+                                <div class="text-xs text-amma-gray-light font-medium uppercase mb-1">Status</div>
+                                <div class="text-sm text-amma-black font-semibold">{{ project.get_status_display }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Card -->
+                {% if project.start_date or project.completion_date %}
+                <div class="bg-white rounded-amma shadow-amma-light p-6">
+                    <h3 class="text-lg font-secondary font-semibold text-amma-black mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Timeline
+                    </h3>
+                    <div class="space-y-4">
+                        {% if project.start_date %}
+                        <div>
+                            <div class="text-xs text-amma-gray-light font-medium uppercase mb-1">Start Date</div>
+                            <div class="text-sm text-amma-black font-semibold">{{ project.start_date|date:"F d, Y" }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if project.completion_date %}
+                        <div>
+                            <div class="text-xs text-amma-gray-light font-medium uppercase mb-1">
+                                {% if project.status == 'completed' %}Completed On{% else %}Expected Completion{% endif %}
+                            </div>
+                            <div class="text-sm text-amma-black font-semibold">{{ project.completion_date|date:"F d, Y" }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Impact Card -->
+                {% if project.beneficiaries or project.impact_text %}
+                <div class="bg-gradient-to-br from-amma-gold-light to-amma-white rounded-amma shadow-amma-light p-6">
+                    <h3 class="text-lg font-secondary font-semibold text-amma-black mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Community Impact
+                    </h3>
+
+                    {% if project.beneficiaries %}
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold text-amma-black mb-1">{{ project.beneficiaries }}</div>
+                        <div class="text-sm text-amma-gray">People Benefiting</div>
+                    </div>
+                    {% endif %}
+
+                    {% if project.impact_text %}
+                    <p class="text-sm text-amma-gray">{{ project.impact_text }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Back Button -->
+                <a href="{% url 'projects:list' %}" class="block w-full text-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back to All Projects
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Related Projects -->
+        {% if related_projects %}
+        <div class="mt-16">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-secondary font-bold text-amma-black">Related Projects</h2>
+                <a href="{% url 'projects:category' project.category.slug %}" class="text-amma-gold hover:text-amma-gold-dark font-semibold flex items-center">
+                    View All
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for rel_project in related_projects %}
+                <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-1">
+                    <!-- Project Image -->
+                    <div class="relative h-48 {% if not rel_project.primary_image %}bg-amma-gray-light{% endif %}">
+                        {% if rel_project.primary_image %}
+                        <img
+                            src="{{ rel_project.primary_image.image.url }}"
+                            alt="{{ rel_project.title }}"
+                            class="w-full h-full object-cover"
+                        >
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gold-light to-amma-white">
+                            <svg class="w-16 h-16 text-amma-gold opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <!-- Status Badge -->
+                        {% if rel_project.status == 'ongoing' %}
+                        <span class="absolute top-3 right-3 px-3 py-1 bg-orange-500 text-white rounded-full text-xs font-semibold">
+                            Ongoing
+                        </span>
+                        {% elif rel_project.status == 'completed' %}
+                        <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
+                            Completed
+                        </span>
+                        {% elif rel_project.status == 'planned' %}
+                        <span class="absolute top-3 right-3 px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-semibold">
+                            Planned
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-secondary font-semibold text-amma-black mb-2 line-clamp-2">
+                            <a href="{% url 'projects:detail' rel_project.slug %}" class="hover:text-amma-gold transition-colors">
+                                {{ rel_project.title }}
+                            </a>
+                        </h3>
+                        <p class="text-amma-gray text-sm mb-4 line-clamp-2">
+                            {{ rel_project.description }}
+                        </p>
+                        <a
+                            href="{% url 'projects:detail' rel_project.slug %}"
+                            class="text-amma-gold hover:text-amma-gold-dark font-semibold text-sm flex items-center"
+                        >
+                            Learn More
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
 {% endblock %}
