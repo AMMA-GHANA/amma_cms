@@ -7,7 +7,7 @@
 >
     <!-- Top Bar -->
     <div class="border-b border-white/10 py-2">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto">
             <div class="flex justify-between items-center text-sm text-white">
                 <div class="flex space-x-4">
                     {% if site_settings.phone %}
@@ -51,7 +51,7 @@
 
     <!-- Main Navigation -->
     <nav role="navigation" aria-label="Main navigation">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto">
             <div class="flex items-center justify-between py-4">
                 <!-- Logo -->
                 <a href="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200">
@@ -105,7 +105,7 @@
             @click.away="mobileMenuOpen = false"
             x-cloak
         >
-            <div class="container mx-auto px-4 py-4 space-y-2">
+            <div class="container mx-auto py-4 space-y-2">
                 <a href="/#top" class="block py-2 px-4 text-white hover:bg-amma-gold/20 hover:text-amma-gold rounded transition-colors duration-200" @click="mobileMenuOpen = false">Home</a>
                 <a href="/#about" class="block py-2 px-4 text-white hover:bg-amma-gold/20 hover:text-amma-gold rounded transition-colors duration-200" @click="mobileMenuOpen = false">About</a>
                 <a href="/#services" class="block py-2 px-4 text-white hover:bg-amma-gold/20 hover:text-amma-gold rounded transition-colors duration-200" @click="mobileMenuOpen = false">Services</a>

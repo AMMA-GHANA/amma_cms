@@ -23,7 +23,7 @@
     {% empty %}
         <!-- Default slide if no slides exist -->
         <div class="hero-slide active" style="background-image: linear-gradient(rgba(26, 26, 26, 0.5), rgba(26, 26, 26, 0.3)), url('{% static "images/default-hero.jpg" %}'); background-size: cover; background-position: center;">
-            <div class="container mx-auto px-4 h-full flex items-center">
+            <div class="container mx-auto h-full flex items-center">
                 <div class="hero-slide-content max-w-4xl">
                     <h1 class="text-5xl md:text-6xl font-secondary font-bold text-white mb-4">
                         Serving Our Community with Excellence
@@ -60,7 +60,7 @@
     <!-- Statistics Overlay -->
     {% if statistics %}
         <div class="absolute bottom-0 left-0 right-0 bg-amma-black/80 backdrop-blur-sm py-8 z-10">
-            <div class="container mx-auto px-4">
+            <div class="container mx-auto">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {% for stat in statistics %}
                         <div class="text-center text-white">
@@ -77,7 +77,7 @@
 <!-- About Section -->
 {% if about_section %}
 <section id="about" class="py-20 bg-amma-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-16">
             <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">
                 {{ about_section.title }}
@@ -126,7 +126,7 @@
 <!-- Services Section -->
 {% if services %}
 <section id="services" class="py-20 bg-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-16">
             <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Services</h2>
             <p class="text-xl text-amma-gray leading-relaxed">
@@ -164,7 +164,7 @@
 <!-- Featured News Section -->
 {% if featured_news %}
 <section id="news" class="py-20 bg-amma-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
         <div class="flex justify-between items-end mb-12">
             <div>
                 <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Latest News & Updates</h2>
@@ -198,7 +198,7 @@
 <!-- Featured Projects Section -->
 {% if featured_projects %}
 <section id="projects" class="py-20 bg-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
         <div class="flex justify-between items-end mb-12">
             <div>
                 <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Featured Projects</h2>
@@ -278,7 +278,7 @@
 <!-- Leadership Section -->
 {% if leadership %}
 <section id="leadership" class="py-20 bg-amma-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto">
         <div class="text-center max-w-3xl mx-auto mb-16">
             <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Leadership</h2>
             <p class="text-xl text-amma-gray leading-relaxed">
@@ -318,7 +318,7 @@
 
 <!-- CTA Section -->
 <section id="contact" class="py-20 bg-gradient-to-r from-amma-gold to-amma-gold-dark text-amma-black">
-    <div class="container mx-auto px-4 text-center">
+    <div class="container mx-auto text-center">
         <h2 class="text-4xl md:text-5xl font-secondary font-bold mb-6">Get in Touch with Us</h2>
         <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
             Have questions or need assistance? Our team is here to help you with all your municipal service needs.
