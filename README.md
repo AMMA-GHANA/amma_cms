@@ -191,24 +191,26 @@ make shell
 
 ## Database Configuration
 
-The project uses **SQLite by default** for both development and production, which is suitable for small to medium-sized sites. You can configure alternative database backends via the `DATABASE_URL` environment variable in your `.env` file:
+The project supports both SQLite and MySQL through the `DATABASE_URL` environment variable in your `.env` file:
 
-**SQLite (default):**
+### Development (Local)
+Uses **SQLite by default** - no setup required:
 ```env
 DATABASE_URL=sqlite:///db.sqlite3
 ```
 
-**MySQL:**
+### Production (cPanel)
+Uses **MySQL** with credentials from cPanel:
+
+1. Log into cPanel and go to **MySQL Databases**
+2. Create a new database or use existing one
+3. Note down the credentials (username, password, database name)
+4. Update your `.env` file:
 ```env
 DATABASE_URL=mysql://username:password@localhost/database_name
 ```
 
-**PostgreSQL:**
-```env
-DATABASE_URL=postgres://username:password@localhost/database_name
-```
-
-The settings use `django-environ` to parse the `DATABASE_URL`, making it easy to switch between database backends without code changes.
+The `mysqlclient` package is included in `requirements.txt` for MySQL support.
 
 ## License
 Proprietary - Asokore Mampong Municipal Assembly

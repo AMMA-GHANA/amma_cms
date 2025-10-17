@@ -23,6 +23,9 @@ django-cleanup==8.1.0
 django-environ==0.11.2
 python-slugify==8.0.4
 
+# Database Adapters
+mysqlclient==2.2.4
+
 # Date/Time
 python-dateutil==2.9.0
 
