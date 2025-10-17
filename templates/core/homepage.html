@@ -127,11 +127,17 @@
 {% if services %}
 <section id="services" class="py-20 bg-white">
     <div class="container mx-auto">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Services</h2>
-            <p class="text-xl text-amma-gray leading-relaxed">
-                Access essential municipal services and resources designed to serve our community efficiently.
-            </p>
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Our Services</h2>
+                <p class="text-xl text-amma-gray">Access essential municipal services and resources designed to serve our community efficiently.</p>
+            </div>
+            <a href="/services/" class="hidden md:inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                View All Services
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -154,7 +160,7 @@
             {% endfor %}
         </div>
 
-        <div class="text-center mt-12">
+        <div class="text-center mt-12 md:hidden">
             {% include 'components/_button.html' with text="View All Services" link="/services/" variant="primary" size="lg" icon=True %}
         </div>
     </div>
@@ -279,11 +285,17 @@
 {% if leadership %}
 <section id="leadership" class="py-20 bg-amma-white">
     <div class="container mx-auto">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">Our Leadership</h2>
-            <p class="text-xl text-amma-gray leading-relaxed">
-                Meet the dedicated leaders serving our community with integrity and commitment.
-            </p>
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Our Leadership</h2>
+                <p class="text-xl text-amma-gray">Meet the dedicated leaders serving our community with integrity and commitment.</p>
+            </div>
+            <a href="/staff/" class="hidden md:inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                View All Leadership
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -309,7 +321,7 @@
             {% endfor %}
         </div>
 
-        <div class="text-center mt-12">
+        <div class="text-center mt-12 md:hidden">
             {% include 'components/_button.html' with text="View All Leadership" link="/staff/" variant="outline" size="lg" %}
         </div>
     </div>
