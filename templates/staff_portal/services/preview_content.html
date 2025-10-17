@@ -1,0 +1,149 @@
+<!-- Preview Content for Service Blocks -->
+<div class="space-y-6 text-sm">
+    <!-- Service Header -->
+    <div class="bg-gradient-to-br from-gray-700 to-gray-800 text-white rounded-lg p-4 text-center">
+        <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-2">
+            <span class="text-xs font-bold">{{ service.icon|slice:":2"|upper }}</span>
+        </div>
+        <h2 class="text-lg font-bold">{{ service.name }}</h2>
+        <p class="text-xs text-gray-300 mt-1">{{ service.description }}</p>
+    </div>
+
+    <!-- Content Blocks -->
+    {% for block in content_blocks %}
+
+        <!-- Text Block -->
+        {% if block.block_type == 'text' %}
+        <div class="bg-white rounded p-3 border border-gray-200">
+            {% if block.title %}
+            <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
+            {% endif %}
+            <p class="text-gray-600 text-xs leading-relaxed">{{ block.content|linebreaks }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Service Grid Block -->
+        {% if block.block_type == 'service_grid' %}
+        <div>
+            {% if block.title %}
+            <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
+            {% endif %}
+            <div class="grid grid-cols-1 gap-2">
+                {% for item in block.data.items %}
+                <div class="bg-white rounded p-2 border border-gray-200">
+                    <h4 class="font-medium text-gray-900 text-xs mb-1">{{ item.title }}</h4>
+                    <p class="text-gray-600 text-xs">{{ item.description }}</p>
+                    {% if item.list %}
+                    <ul class="mt-1 space-y-1">
+                        {% for list_item in item.list %}
+                        <li class="text-xs text-gray-500 flex items-start">
+                            <span class="mr-1">•</span>
+                            <span>{{ list_item }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- List Block -->
+        {% if block.block_type == 'list' %}
+        <div class="bg-white rounded p-3 border border-gray-200">
+            {% if block.title %}
+            <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
+            {% endif %}
+            {% if block.content %}
+            <p class="text-gray-600 text-xs mb-2">{{ block.content }}</p>
+            {% endif %}
+            <ul class="space-y-1">
+                {% for item in block.data.items %}
+                <li class="text-xs text-gray-600 flex items-start">
+                    <span class="text-yellow-600 mr-1">✓</span>
+                    <span>{{ item }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Steps Block -->
+        {% if block.block_type == 'steps' %}
+        <div>
+            {% if block.title %}
+            <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
+            {% endif %}
+            <div class="grid grid-cols-1 gap-2">
+                {% for step in block.data.steps %}
+                <div class="bg-white rounded p-2 border border-gray-200">
+                    <div class="flex items-start">
+                        <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-xs mr-2 flex-shrink-0">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900 text-xs">{{ step.title }}</h4>
+                            <p class="text-gray-600 text-xs mt-1">{{ step.description }}</p>
+                            {% if step.list %}
+                            <ul class="mt-1 space-y-1">
+                                {% for list_item in step.list %}
+                                <li class="text-xs text-gray-500">• {{ list_item }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notice Block -->
+        {% if block.block_type == 'notice' %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded-r">
+            {% if block.title %}
+            <h4 class="font-semibold text-yellow-900 text-xs mb-1">{{ block.title }}</h4>
+            {% endif %}
+            <p class="text-yellow-800 text-xs">{{ block.content }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Table Block -->
+        {% if block.block_type == 'table' %}
+        <div>
+            {% if block.title %}
+            <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
+            {% endif %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200 text-xs">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            {% for header in block.data.headers %}
+                            <th class="px-2 py-1 text-left font-semibold text-gray-700 border-b">{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in block.data.rows %}
+                        <tr class="border-b">
+                            {% for cell in row %}
+                            <td class="px-2 py-1 text-gray-600">{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    {% endfor %}
+
+    {% if not content_blocks %}
+    <div class="text-center py-6 text-gray-400 text-xs">
+        <p>No content blocks yet</p>
+    </div>
+    {% endif %}
+</div>

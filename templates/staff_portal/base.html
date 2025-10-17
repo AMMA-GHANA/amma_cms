@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Staff Portal{% endblock %} - AMMA CMS</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'amma-gold': '#D4AF37',
+                        'amma-gold-light': '#F5E6C8',
+                        'amma-gold-dark': '#B8941F',
+                        'amma-gray': '#4A5568',
+                        'amma-gray-light': '#2D3748',
+                        'amma-white': '#F7FAFC',
+                        'amma-black': '#1A202C',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Sortable.js for drag and drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-amma-gray-light text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'staff_portal:dashboard' %}" class="flex items-center">
+                        <span class="text-2xl font-bold text-amma-gold">AMMA</span>
+                        <span class="ml-2 text-lg">Staff Portal</span>
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'staff_portal:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'staff_portal:service_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
+                        Services
+                    </a>
+                    <a href="/admin/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
+                        Django Admin
+                    </a>
+                    <a href="/" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
+                        View Site
+                    </a>
+                    <div class="border-l border-gray-600 h-6"></div>
+                    <span class="text-sm">{{ request.user.username }}</span>
+                    <a href="/admin/logout/" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800 border-l-4 border-red-500{% elif message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500{% else %}bg-blue-100 text-blue-800 border-l-4 border-blue-500{% endif %}"
+             x-data="{ show: true }"
+             x-show="show"
+             x-init="setTimeout(() => show = false, 5000)">
+            <div class="flex items-center justify-between">
+                <p>{{ message }}</p>
+                <button @click="show = false" class="text-current opacity-50 hover:opacity-100">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <p class="text-center text-sm text-gray-500">
+                AMMA Staff Portal &copy; 2025 - Municipal Content Management System
+            </p>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -37,6 +37,9 @@ urlpatterns = [
     path('gallery/', include('apps.gallery.urls')),
     path('contact/', include('apps.contact.urls')),
 
+    # Staff Portal (staff-only access)
+    path('portal/', include('apps.staff_portal.urls')),
+
     # Admin and CKEditor
     path('admin/', admin.site.urls),
     path('ckeditor5/', include('django_ckeditor_5.urls')),

@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'apps.news',
     'apps.projects',
     'apps.staff',
+    'apps.staff_portal',
     'apps.services',
     'apps.documents',
     'apps.gallery',

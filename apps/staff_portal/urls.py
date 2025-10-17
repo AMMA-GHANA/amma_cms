@@ -1,0 +1,21 @@
+"""URL configuration for staff portal"""
+
+from django.urls import path
+from . import views
+
+app_name = 'staff_portal'
+
+urlpatterns = [
+    # Dashboard
+    path('', views.dashboard, name='dashboard'),
+
+    # Services Management
+    path('services/', views.service_list, name='service_list'),
+    path('services/create/', views.service_create, name='service_create'),
+    path('services/<int:pk>/edit/', views.service_edit, name='service_edit'),
+    path('services/<int:pk>/delete/', views.service_delete, name='service_delete'),
+
+    # API endpoints for live preview and AJAX operations
+    path('api/services/preview/', views.service_preview_api, name='service_preview_api'),
+    path('api/services/<int:pk>/blocks/reorder/', views.service_blocks_reorder_api, name='service_blocks_reorder_api'),
+]
