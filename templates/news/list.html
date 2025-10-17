@@ -4,30 +4,489 @@
 {% block title %}News & Updates{% endblock %}
 
 {% block content %}
-<section class="py-20 bg-amma-white">
-    <div class="container mx-auto">
-        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-6">News & Updates</h1>
-        <p class="text-xl text-amma-gray mb-12">Stay informed about recent developments and announcements</p>
+<!-- Hero Section with Search -->
+<section class="bg-gradient-to-br from-amma-gray-light to-amma-gray py-16 md:py-20">
+    <div class="container mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-white mb-4">News & Updates</h1>
+        <p class="text-xl text-white/80 mb-8">Stay informed about our latest news and announcements</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {% for article in articles %}
-                {% if article.featured_image %}
-                    {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name date=article.published_date author=article.author.full_name %}
-                {% else %}
-                    {% include 'components/_card.html' with title=article.title image='' excerpt=article.excerpt link=article.get_absolute_url category=article.category.name date=article.published_date author=article.author.full_name %}
-                {% endif %}
-            {% empty %}
-                <div class="col-span-3 text-center py-12">
-                    <p class="text-amma-gray">No news articles available at the moment.</p>
-                </div>
-            {% endfor %}
-        </div>
-
-        {% if articles.has_other_pages %}
-            <div class="mt-12 flex justify-center">
-                <!-- Pagination will be added here -->
+        <!-- Search Bar -->
+        <form method="get" action="{% url 'news:list' %}" class="max-w-2xl mx-auto">
+            <div class="relative">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search news by title or content..."
+                    class="w-full px-6 py-4 pr-12 rounded-amma text-lg focus:outline-none focus:border-amma-gold border-2 border-white/10"
+                >
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-amma-gray-light hover:text-amma-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
             </div>
-        {% endif %}
+            {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category.slug }}">
+            {% endif %}
+            {% if selected_year %}
+                <input type="hidden" name="year" value="{{ selected_year }}">
+            {% endif %}
+            {% if sort_by %}
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+            {% endif %}
+        </form>
     </div>
 </section>
+
+<!-- Main Content Section -->
+<section class="py-12 bg-amma-white">
+    <div class="container mx-auto">
+
+        <!-- Mobile Filter Button -->
+        <div class="lg:hidden mb-6">
+            <button
+                onclick="toggleFilterDrawer()"
+                class="w-full bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filters & Sort
+            </button>
+        </div>
+
+        <!-- Active Filters Display -->
+        {% if search_query or selected_category or selected_year %}
+        <div class="mb-6 flex items-center gap-3 flex-wrap">
+            <span class="text-sm text-amma-gray-light">Active filters:</span>
+
+            {% if search_query %}
+            <div class="inline-flex items-center px-3 py-1 bg-amma-gold-light text-amma-black rounded-amma text-sm">
+                Search: "{{ search_query }}"
+                <a href="{% url 'news:list' %}?{% if selected_category %}category={{ selected_category.slug }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                   class="ml-2 hover:text-amma-gold-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if selected_category %}
+            <div class="inline-flex items-center px-3 py-1 bg-amma-gold-light text-amma-black rounded-amma text-sm">
+                Category: {{ selected_category.name }}
+                <a href="{% url 'news:list' %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                   class="ml-2 hover:text-amma-gold-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if selected_year %}
+            <div class="inline-flex items-center px-3 py-1 bg-amma-gold-light text-amma-black rounded-amma text-sm">
+                Year: {{ selected_year }}
+                <a href="{% url 'news:list' %}?{% if selected_category %}category={{ selected_category.slug }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                   class="ml-2 hover:text-amma-gold-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'news:list' %}" class="text-sm text-amma-gold hover:text-amma-gold-dark">Clear all</a>
+        </div>
+        {% endif %}
+
+        <!-- Results Count -->
+        <div class="mb-6">
+            <p class="text-sm text-amma-gray">
+                Showing {{ total_count }} article{{ total_count|pluralize }}
+            </p>
+        </div>
+
+        <!-- 2-Column Layout: Main Content + Sidebar -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+
+            <!-- LEFT: Main Articles Area -->
+            <div class="order-2 lg:order-1">
+                {% if featured_article or articles %}
+                    <!-- Featured Article (Large Card) -->
+                    {% if featured_article %}
+                    <div class="mb-12">
+                        <div class="bg-white rounded-amma overflow-hidden shadow-amma-light hover:shadow-amma-dark transition-all duration-300 transform hover:-translate-y-1">
+                            <div class="grid md:grid-cols-2 gap-0">
+                                <!-- Featured Image -->
+                                <div class="relative overflow-hidden h-80 md:h-auto {% if not featured_article.featured_image %}bg-amma-gray-light{% endif %}">
+                                    {% if featured_article.featured_image %}
+                                    <img
+                                        src="{{ featured_article.featured_image.url }}"
+                                        alt="{{ featured_article.title }}"
+                                        class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                        loading="eager"
+                                    >
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amma-gray-light to-amma-gray">
+                                        <svg class="w-20 h-20 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    {% endif %}
+                                    <!-- Category Badge -->
+                                    <span class="absolute top-4 left-4 bg-amma-gold text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wide">
+                                        {{ featured_article.category.name }}
+                                    </span>
+                                    <!-- Featured Badge -->
+                                    <span class="absolute top-4 right-4 bg-amma-black bg-opacity-80 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wide flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                        Featured
+                                    </span>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="p-8 flex flex-col">
+                                    <!-- Meta Info -->
+                                    <div class="flex items-center text-sm text-amma-gray mb-4 space-x-4 flex-wrap">
+                                        {% if featured_article.published_date %}
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ featured_article.published_date|date:"M d, Y" }}
+                                        </span>
+                                        {% endif %}
+                                        {% if featured_article.author %}
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ featured_article.author.full_name }}
+                                        </span>
+                                        {% endif %}
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ featured_article.views }} views
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ featured_article.reading_time }} min read
+                                        </span>
+                                    </div>
+
+                                    <!-- Title -->
+                                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-4 hover:text-amma-gold transition-colors duration-200">
+                                        <a href="{{ featured_article.get_absolute_url }}">{{ featured_article.title }}</a>
+                                    </h2>
+
+                                    <!-- Excerpt -->
+                                    <p class="text-amma-gray leading-relaxed mb-6 flex-grow">
+                                        {{ featured_article.excerpt }}
+                                    </p>
+
+                                    <!-- Read More Button -->
+                                    <a
+                                        href="{{ featured_article.get_absolute_url }}"
+                                        class="inline-flex items-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors duration-200 group self-start"
+                                    >
+                                        Read Full Article
+                                        <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Regular Articles Grid -->
+                    {% if articles %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for article in articles %}
+                            {% if article.featured_image %}
+                                {% include 'components/_card.html' with title=article.title image=article.featured_image.url excerpt=article.excerpt link=article.get_absolute_url category=article.category.name date=article.published_date author=article.author.full_name|default:'' read_time=article.reading_time %}
+                            {% else %}
+                                {% include 'components/_card.html' with title=article.title image='' excerpt=article.excerpt link=article.get_absolute_url category=article.category.name date=article.published_date author=article.author.full_name|default:'' read_time=article.reading_time %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Pagination -->
+                    {% if articles.has_other_pages %}
+                    <div class="mt-12 flex justify-center items-center gap-2">
+                        {% if articles.has_previous %}
+                            <a href="?page=1{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                First
+                            </a>
+                            <a href="?page={{ articles.previous_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Previous
+                            </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 bg-amma-gold text-amma-black font-semibold rounded-amma">
+                            Page {{ articles.number }} of {{ articles.paginator.num_pages }}
+                        </span>
+
+                        {% if articles.has_next %}
+                            <a href="?page={{ articles.next_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Next
+                            </a>
+                            <a href="?page={{ articles.paginator.num_pages }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="px-4 py-2 rounded-amma border border-gray-300 text-amma-gray hover:bg-amma-gold-light transition-colors">
+                                Last
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-amma-gold-light rounded-full mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amma-gold">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <line x1="10" y1="9" x2="8" y2="9"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">No articles found</h3>
+                        <p class="text-amma-gray mb-6">
+                            {% if search_query or selected_category or selected_year %}
+                                Try adjusting your filters or search terms.
+                            {% else %}
+                                No news articles are currently available.
+                            {% endif %}
+                        </p>
+                        {% if search_query or selected_category or selected_year %}
+                        <a href="{% url 'news:list' %}" class="inline-block bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-colors">
+                            Clear Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- RIGHT: Sidebar -->
+            <div class="order-1 lg:order-2">
+                <div class="hidden lg:block lg:sticky lg:top-24 space-y-6">
+
+                    <!-- Sort Dropdown -->
+                    <div>
+                        <label for="sort" class="block text-sm font-semibold text-amma-gray-light mb-2">Sort by</label>
+                        <select id="sort"
+                                onchange="window.location.href='{% url 'news:list' %}?{% if selected_category %}category={{ selected_category.slug }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}sort=' + this.value"
+                                class="w-full px-3 py-2 rounded-amma border border-gray-300 text-sm focus:outline-none focus:border-amma-gold">
+                            <option value="-published_date" {% if sort_by == '-published_date' %}selected{% endif %}>Newest First</option>
+                            <option value="published_date" {% if sort_by == 'published_date' %}selected{% endif %}>Oldest First</option>
+                        </select>
+                    </div>
+
+                    <!-- Most Viewed Articles -->
+                    {% if most_viewed %}
+                    <div class="bg-white rounded-amma p-6 shadow-amma-light">
+                        <h3 class="text-lg font-secondary font-semibold text-amma-black mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-amma-gold">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Most Viewed
+                        </h3>
+                        <div class="space-y-4">
+                            {% for article in most_viewed %}
+                            <a href="{{ article.get_absolute_url }}" class="block group">
+                                <div class="flex gap-3">
+                                    <div class="flex-shrink-0 w-16 h-16 rounded-amma overflow-hidden bg-amma-gray-light">
+                                        {% if article.featured_image %}
+                                        <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                        {% else %}
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-amma-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-sm font-semibold text-amma-black group-hover:text-amma-gold transition-colors line-clamp-2 mb-1">
+                                            {{ article.title }}
+                                        </h4>
+                                        <p class="text-xs text-amma-gray flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                            {{ article.views }} views
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% if not forloop.last %}
+                            <div class="border-b border-gray-200"></div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Categories -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Categories</h3>
+                        <div class="space-y-2">
+                            <!-- All Categories -->
+                            <a href="{% url 'news:list' %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if not selected_category %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9h18M3 15h18M3 21h18"></path>
+                                </svg>
+                                <span class="flex-1 font-medium">All News</span>
+                            </a>
+
+                            <!-- Category Buttons -->
+                            {% for category in categories %}
+                            <a href="{% url 'news:list' %}?category={{ category.slug }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_category.slug == category.slug %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                                </svg>
+                                <span class="flex-1 font-medium">{{ category.name }}</span>
+                                <span class="text-sm opacity-75">({{ category.article_count }})</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Years Filter -->
+                    {% if years %}
+                    <div>
+                        <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Filter by Year</h3>
+                        <div class="space-y-2">
+                            {% for year_date in years %}
+                            <a href="{% url 'news:list' %}?year={{ year_date.year }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                               class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_year == year_date.year %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span class="flex-1 font-medium">{{ year_date.year }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Mobile Filter Drawer -->
+<div id="filterDrawer" class="fixed inset-0 z-50 lg:hidden hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleFilterDrawer()"></div>
+
+    <!-- Drawer Content -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-amma shadow-amma-dark max-h-[80vh] overflow-y-auto">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-secondary font-semibold text-amma-black">Filters & Sort</h3>
+                <button onclick="toggleFilterDrawer()" class="text-amma-gray hover:text-amma-black">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="mb-6">
+                <label for="sort-mobile" class="block text-sm font-semibold text-amma-gray-light mb-2">Sort by</label>
+                <select id="sort-mobile"
+                        onchange="window.location.href='{% url 'news:list' %}?{% if selected_category %}category={{ selected_category.slug }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if search_query %}q={{ search_query }}&{% endif %}sort=' + this.value"
+                        class="w-full px-3 py-2 rounded-amma border border-gray-300 text-sm focus:outline-none focus:border-amma-gold">
+                    <option value="-published_date" {% if sort_by == '-published_date' %}selected{% endif %}>Newest First</option>
+                    <option value="published_date" {% if sort_by == 'published_date' %}selected{% endif %}>Oldest First</option>
+                </select>
+            </div>
+
+            <!-- Categories -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Categories</h3>
+                <div class="space-y-2">
+                    <!-- All Categories -->
+                    <a href="{% url 'news:list' %}?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if not selected_category %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9h18M3 15h18M3 21h18"></path>
+                        </svg>
+                        <span class="flex-1 font-medium">All News</span>
+                    </a>
+
+                    <!-- Category Buttons -->
+                    {% for category in categories %}
+                    <a href="{% url 'news:list' %}?category={{ category.slug }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_category.slug == category.slug %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                        </svg>
+                        <span class="flex-1 font-medium">{{ category.name }}</span>
+                        <span class="text-sm opacity-75">({{ category.article_count }})</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Years Filter -->
+            {% if years %}
+            <div>
+                <h3 class="text-sm font-semibold text-amma-gray-light mb-3">Filter by Year</h3>
+                <div class="space-y-2">
+                    {% for year_date in years %}
+                    <a href="{% url 'news:list' %}?year={{ year_date.year }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-amma transition-all {% if selected_year == year_date.year %}bg-amma-gold text-amma-black{% else %}bg-white text-amma-gray border border-gray-300 hover:bg-amma-gold/20{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span class="flex-1 font-medium">{{ year_date.year }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Drawer Toggle Script -->
+<script>
+function toggleFilterDrawer() {
+    const drawer = document.getElementById('filterDrawer');
+    drawer.classList.toggle('hidden');
+}
+</script>
 {% endblock %}
