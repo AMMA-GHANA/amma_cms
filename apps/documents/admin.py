@@ -41,6 +41,7 @@ class DocumentAdmin(admin.ModelAdmin):
         'title',
         'thumbnail_preview',
         'category',
+        'document_period',
         'file_type_badge',
         'file_size',
         'download_count',
@@ -48,17 +49,21 @@ class DocumentAdmin(admin.ModelAdmin):
         'is_featured',
         'uploaded_date'
     )
-    list_filter = ('category', 'is_public', 'is_featured', 'uploaded_date', 'file_type')
+    list_filter = ('category', 'document_year', 'document_quarter', 'is_public', 'is_featured', 'uploaded_date', 'file_type')
     list_editable = ('is_public', 'is_featured')
     search_fields = ('title', 'description')
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'uploaded_date'
-    ordering = ('-uploaded_date',)
+    ordering = ('-document_year', '-uploaded_date')
     readonly_fields = ('file_size', 'file_type', 'download_count', 'uploaded_date', 'updated_date')
 
     fieldsets = (
         ('Document Information', {
             'fields': ('title', 'slug', 'description', 'category')
+        }),
+        ('Document Period', {
+            'fields': ('document_year', 'document_quarter'),
+            'description': 'Specify the time period this document pertains to (e.g., fiscal year, quarter)'
         }),
         ('File', {
             'fields': ('file', 'thumbnail')
@@ -103,6 +108,19 @@ class DocumentAdmin(admin.ModelAdmin):
             obj.file_type
         )
     file_type_badge.short_description = 'Type'
+
+    def document_period(self, obj):
+        """Display document year and quarter"""
+        if obj.document_year:
+            period = str(obj.document_year)
+            if obj.document_quarter:
+                period += f" {obj.document_quarter}"
+            return format_html(
+                '<span style="background-color: #f0ad4e; color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: bold;">{}</span>',
+                period
+            )
+        return '-'
+    document_period.short_description = 'Period'
 
     # Custom Actions
     @admin.action(description='Mark as public')
