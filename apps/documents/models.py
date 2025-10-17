@@ -62,6 +62,25 @@ class Document(models.Model):
     file_size = models.CharField(max_length=20, blank=True, editable=False)
     file_type = models.CharField(max_length=10, blank=True, editable=False)
 
+    # Document Period (for time-based organization)
+    document_year = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Year this document pertains to (e.g., 2024)"
+    )
+    document_quarter = models.CharField(
+        max_length=2,
+        choices=[
+            ('Q1', 'Quarter 1'),
+            ('Q2', 'Quarter 2'),
+            ('Q3', 'Quarter 3'),
+            ('Q4', 'Quarter 4'),
+        ],
+        null=True,
+        blank=True,
+        help_text="Quarter this document pertains to"
+    )
+
     # Dates
     uploaded_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
@@ -86,6 +105,7 @@ class Document(models.Model):
         indexes = [
             models.Index(fields=['category']),
             models.Index(fields=['is_public']),
+            models.Index(fields=['document_year']),
         ]
 
     def save(self, *args, **kwargs):
@@ -114,4 +134,9 @@ class Document(models.Model):
         self.save(update_fields=['download_count'])
 
     def __str__(self):
+        if self.document_year:
+            period = f"{self.document_year}"
+            if self.document_quarter:
+                period += f" {self.document_quarter}"
+            return f"{self.title} ({period})"
         return self.title
