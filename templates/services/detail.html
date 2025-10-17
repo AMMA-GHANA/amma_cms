@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ service.name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-amma-gray-light to-amma-gray py-16 md:py-20">
+    <div class="container mx-auto">
+        <div class="flex items-center justify-center mb-6">
+            <div class="w-24 h-24 bg-gradient-to-br from-amma-gold to-amma-gold-dark rounded-full flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    {% if service.icon == 'file-text' %}
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <line x1="10" y1="9" x2="8" y2="9"></line>
+                    {% elif service.icon == 'truck' %}
+                        <rect x="1" y="3" width="15" height="13"></rect>
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    {% else %}
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    {% endif %}
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-secondary font-bold text-white mb-4 text-center">{{ service.name }}</h1>
+        <p class="text-xl text-white/80 text-center max-w-3xl mx-auto">{{ service.description }}</p>
+    </div>
+</section>
+
+<!-- Content Blocks Section -->
+<section class="py-12 bg-amma-white">
+    <div class="container mx-auto">
+
+        {% if content_blocks %}
+            {% for block in content_blocks %}
+
+                <!-- Text Block -->
+                {% if block.block_type == 'text' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    <div class="prose prose-lg max-w-none text-amma-gray leading-relaxed">
+                        {{ block.content|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Service Grid Block -->
+                {% if block.block_type == 'service_grid' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for item in block.data.items %}
+                        <div class="bg-white rounded-amma p-6 shadow-amma-light hover:shadow-amma-dark transition-all duration-300">
+                            <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3">{{ item.title }}</h3>
+                            <p class="text-amma-gray leading-relaxed">{{ item.description }}</p>
+                            {% if item.list %}
+                            <ul class="mt-4 space-y-2">
+                                {% for list_item in item.list %}
+                                <li class="flex items-start">
+                                    <svg class="w-5 h-5 text-amma-gold mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span class="text-amma-gray">{{ list_item }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- List Block -->
+                {% if block.block_type == 'list' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    {% if block.content %}
+                    <p class="text-amma-gray mb-4">{{ block.content }}</p>
+                    {% endif %}
+                    <ul class="space-y-3">
+                        {% for item in block.data.items %}
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-amma-gold mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-amma-gray text-lg">{{ item }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Steps Block -->
+                {% if block.block_type == 'steps' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    {% if block.content %}
+                    <p class="text-amma-gray mb-8">{{ block.content }}</p>
+                    {% endif %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for step in block.data.steps %}
+                        <div class="bg-white rounded-amma p-6 shadow-amma-light">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-amma-gold to-amma-gold-dark rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                                    {{ forloop.counter }}
+                                </div>
+                                <h3 class="text-xl font-secondary font-semibold text-amma-black">{{ step.title }}</h3>
+                            </div>
+                            <p class="text-amma-gray leading-relaxed">{{ step.description }}</p>
+                            {% if step.list %}
+                            <ul class="mt-4 space-y-2">
+                                {% for list_item in step.list %}
+                                <li class="flex items-start">
+                                    <svg class="w-5 h-5 text-amma-gold mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span class="text-amma-gray text-sm">{{ list_item }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Notice Block -->
+                {% if block.block_type == 'notice' %}
+                <div class="mb-12">
+                    <div class="bg-amma-gold-light border-l-4 border-amma-gold p-6 rounded-r-amma">
+                        {% if block.title %}
+                        <h3 class="text-xl font-secondary font-semibold text-amma-black mb-2 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ block.title }}
+                        </h3>
+                        {% endif %}
+                        <p class="text-amma-gray-light">{{ block.content }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Table Block -->
+                {% if block.block_type == 'table' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-amma overflow-hidden shadow-amma-light">
+                            <thead class="bg-amma-gray text-white">
+                                <tr>
+                                    {% for header in block.data.headers %}
+                                    <th class="px-6 py-3 text-left text-sm font-semibold">{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                {% for row in block.data.rows %}
+                                <tr class="hover:bg-amma-gold-light/30 transition-colors">
+                                    {% for cell in row %}
+                                    <td class="px-6 py-4 text-amma-gray">{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Document Block -->
+                {% if block.block_type == 'document' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for doc in block.data.documents %}
+                        <a href="{{ doc.url }}" target="_blank" class="flex items-center p-4 bg-white rounded-amma shadow-amma-light hover:shadow-amma-dark transition-all duration-300 group">
+                            <div class="w-12 h-12 bg-amma-gold rounded-amma flex items-center justify-center mr-4 group-hover:bg-amma-gold-dark transition-colors">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-amma-black group-hover:text-amma-gold transition-colors">{{ doc.title }}</h3>
+                                {% if doc.description %}
+                                <p class="text-sm text-amma-gray">{{ doc.description }}</p>
+                                {% endif %}
+                            </div>
+                            <svg class="w-5 h-5 text-amma-gray group-hover:text-amma-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Image Block -->
+                {% if block.block_type == 'image' %}
+                <div class="mb-12">
+                    {% if block.title %}
+                    <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
+                    {% endif %}
+                    <div class="rounded-amma overflow-hidden shadow-amma-light">
+                        <img src="{{ block.data.url }}" alt="{{ block.data.alt|default:block.title }}" class="w-full h-auto">
+                        {% if block.data.caption %}
+                        <p class="text-center text-sm text-amma-gray mt-2 italic">{{ block.data.caption }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-amma-gold-light rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amma-gold">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-2">No content available</h3>
+                <p class="text-amma-gray mb-6">Content for this service is being prepared.</p>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mt-12 text-center">
+            <a href="{% url 'services:list' %}" class="inline-flex items-center bg-amma-gray hover:bg-amma-gray-light text-white font-semibold py-3 px-8 rounded-amma transition-all duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to All Services
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

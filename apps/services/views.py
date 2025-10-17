@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-from .models import Service
+from .models import Service, ServiceContentBlock
 
 
 def service_list(request):
@@ -24,3 +24,17 @@ def service_list(request):
         'total_count': services.count(),
     }
     return render(request, 'services/list.html', context)
+
+
+def service_detail(request, slug):
+    """Display detailed service page with content blocks."""
+    service = get_object_or_404(Service, slug=slug, is_active=True)
+
+    # Get all active content blocks for this service
+    content_blocks = service.content_blocks.filter(is_active=True).order_by('order')
+
+    context = {
+        'service': service,
+        'content_blocks': content_blocks,
+    }
+    return render(request, 'services/detail.html', context)

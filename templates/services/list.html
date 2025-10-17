@@ -142,14 +142,12 @@
                 <p class="text-amma-gray leading-relaxed mb-6 flex-grow">{{ service.description }}</p>
 
                 <!-- CTA Button -->
-                {% if service.link_url %}
-                <a href="{{ service.link_url }}" class="w-full inline-flex items-center justify-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-all duration-200 group">
+                <a href="{{ service.get_absolute_url }}" class="w-full inline-flex items-center justify-center bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-6 rounded-amma transition-all duration-200 group">
                     {{ service.link_text }}
                     <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
