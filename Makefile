@@ -1,4 +1,4 @@
-.PHONY: help install migrate run shell test clean collectstatic tailwind-watch tailwind-build superuser backup
+.PHONY: help install migrate run shell test clean collectstatic tailwind-watch tailwind-build superuser backup reset
 
 help:
 	@echo "Available commands:"
@@ -13,6 +13,7 @@ help:
 	@echo "  make tailwind-build   - Build Tailwind CSS for production"
 	@echo "  make superuser        - Create Django superuser"
 	@echo "  make backup           - Backup database"
+	@echo "  make reset            - Reset project (delete db, migrations, cache)"
 
 install:
 	pip install -r requirements.txt
@@ -54,3 +55,18 @@ backup:
 	@echo "Backing up database..."
 	@cp db.sqlite3 backups/db_backup_$$(date +%Y%m%d_%H%M%S).sqlite3
 	@echo "Backup completed: backups/db_backup_$$(date +%Y%m%d_%H%M%S).sqlite3"
+
+reset:
+	@echo "🧹 Resetting Django project..."
+	@echo "Deleting database..."
+	@rm -f db.sqlite3
+	@echo "Deleting migration files..."
+	@find apps -path "*/migrations/*.py" -not -name "__init__.py" -delete 2>/dev/null || true
+	@echo "Cleaning cache files..."
+	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	@echo "✅ Reset complete!"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. make migrate    - Recreate database and migrations"
+	@echo "  2. make superuser  - Create admin user"
