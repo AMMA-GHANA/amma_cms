@@ -767,21 +767,91 @@ function serviceEditor() {
             }
         },
 
-        loadTemplate(templateKey) {
+        async loadTemplate(templateKey) {
             if (!templateKey) return;
 
-            if (!confirm('This will replace all current blocks. Continue?')) {
+            // Confirm replacement
+            if (!confirm('This will replace all current blocks with the template. Continue?')) {
+                // Reset dropdown to empty
+                setTimeout(() => {
+                    const dropdown = document.querySelector('select[x-on\\:change*="loadTemplate"]');
+                    if (dropdown) dropdown.value = '';
+                }, 0);
                 return;
             }
 
-            // In production, you'd fetch this from an API
-            // For now, we'll define templates inline
-            const templates = {{ templates|safe }};
+            try {
+                // Fetch template data from backend
+                const response = await fetch(`/portal/api/templates/${templateKey}/`);
+                const data = await response.json();
 
-            // Clear current blocks and load template
-            this.blocks = [];
-            // Template loading logic would go here
-            alert('Template loading would fetch from backend. Implement template loader.');
+                if (!data.success || !data.template || !data.template.blocks) {
+                    alert('Failed to load template. Please try again.');
+                    return;
+                }
+
+                // Clear current blocks
+                this.blocks = [];
+
+                // Load template blocks
+                data.template.blocks.forEach(templateBlock => {
+                    const newBlock = {
+                        id: this.nextBlockId++,
+                        block_type: templateBlock.block_type,
+                        title: templateBlock.title || '',
+                        content: templateBlock.content || '',
+                        data: {},
+                        collapsed: false
+                    };
+
+                    // Initialize data structures based on block type
+                    if (templateBlock.block_type === 'list') {
+                        // List block: convert items array to items_text for textarea
+                        const items = templateBlock.data?.items || [];
+                        newBlock.data = {
+                            items: items,
+                            items_text: items.join('\n')
+                        };
+                    } else if (templateBlock.block_type === 'service_grid') {
+                        // Service grid: ensure items array exists
+                        newBlock.data = {
+                            items: templateBlock.data?.items || []
+                        };
+                    } else if (templateBlock.block_type === 'steps') {
+                        // Process steps: ensure steps array exists
+                        newBlock.data = {
+                            steps: templateBlock.data?.steps || []
+                        };
+                    } else if (templateBlock.block_type === 'table') {
+                        // Table: ensure headers and rows arrays exist
+                        newBlock.data = {
+                            headers: templateBlock.data?.headers || [],
+                            rows: templateBlock.data?.rows || []
+                        };
+                    } else {
+                        // For text, notice, and other simple blocks
+                        newBlock.data = templateBlock.data || {};
+                    }
+
+                    this.blocks.push(newBlock);
+                });
+
+                // Reset dropdown
+                setTimeout(() => {
+                    const dropdown = document.querySelector('select[x-on\\:change*="loadTemplate"]');
+                    if (dropdown) dropdown.value = '';
+                }, 0);
+
+                // Update preview
+                this.updatePreview();
+
+                // Success notification
+                alert(`✓ Template "${data.template.name}" loaded successfully!\n\nYou can now customize the content blocks.`);
+
+            } catch (error) {
+                console.error('Template loading error:', error);
+                alert('Error loading template. Please check your connection and try again.');
+            }
         },
 
         async saveService() {

@@ -18,4 +18,5 @@ urlpatterns = [
     # API endpoints for live preview and AJAX operations
     path('api/services/preview/', views.service_preview_api, name='service_preview_api'),
     path('api/services/<int:pk>/blocks/reorder/', views.service_blocks_reorder_api, name='service_blocks_reorder_api'),
+    path('api/templates/<str:template_key>/', views.get_template_api, name='get_template_api'),
 ]

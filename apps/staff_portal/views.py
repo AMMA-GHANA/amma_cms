@@ -211,3 +211,18 @@ def service_blocks_reorder_api(request, pk):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+@staff_required
+def get_template_api(request, template_key):
+    """API endpoint to get template data by key"""
+    template = get_template(template_key)
+    if template:
+        return JsonResponse({
+            'success': True,
+            'template': template
+        })
+    return JsonResponse({
+        'success': False,
+        'error': 'Template not found'
+    }, status=404)
