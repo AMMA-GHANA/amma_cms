@@ -1,4 +1,5 @@
 {% extends "staff_portal/base.html" %}
+{% load json_filters %}
 
 {% block title %}{% if is_create %}Create{% else %}Edit{% endif %} Service{% endblock %}
 
@@ -483,43 +484,25 @@ function serviceEditor() {
 
         init() {
             // Load existing blocks if editing
-            {% if content_blocks %}
-            {% for block in content_blocks %}
-            const blockData = {
-                id: this.nextBlockId++,
-                block_type: '{{ block.block_type }}',
-                title: '{{ block.title|escapejs }}',
-                content: '{{ block.content|escapejs }}',
-                collapsed: false
-            };
+            {% if content_blocks_json %}
+            const blocksData = {{ content_blocks_json|tojson }};
+            blocksData.forEach(block => {
+                const blockData = {
+                    id: this.nextBlockId++,
+                    block_type: block.block_type,
+                    title: block.title || '',
+                    content: block.content || '',
+                    data: block.data || {},
+                    collapsed: false
+                };
 
-            // Handle block-specific data structures
-            {% if block.block_type == 'list' %}
-            blockData.data = {
-                items: {{ block.data.items|safe }},
-                items_text: {{ block.data.items|safe }}.join('\n')
-            };
-            {% elif block.block_type == 'service_grid' %}
-            blockData.data = {
-                items: {{ block.data.items|default:"[]"|safe }}
-            };
-            {% elif block.block_type == 'steps' %}
-            blockData.data = {
-                steps: {{ block.data.steps|default:"[]"|safe }}
-            };
-            {% elif block.block_type == 'table' %}
-            blockData.data = {
-                headers: {{ block.data.headers|default:"[]"|safe }},
-                rows: {{ block.data.rows|default:"[]"|safe }}
-            };
-            {% else %}
-            // For text and notice blocks
-            blockData.data = {{ block.data|safe }};
-            blockData.data_json = JSON.stringify({{ block.data|safe }}, null, 2);
-            {% endif %}
+                // Handle list blocks specially to add items_text
+                if (block.block_type === 'list' && block.data && block.data.items) {
+                    blockData.data.items_text = block.data.items.join('\n');
+                }
 
-            this.blocks.push(blockData);
-            {% endfor %}
+                this.blocks.push(blockData);
+            });
             {% endif %}
 
             // Initialize Sortable for drag & drop

@@ -75,9 +75,19 @@ def service_edit(request, pk):
     content_blocks = service.content_blocks.all().order_by('order')
     templates = get_all_templates()
 
+    # Serialize blocks to JSON for JavaScript
+    content_blocks_json = [{
+        'block_type': block.block_type,
+        'title': block.title,
+        'content': block.content,
+        'data': block.data,
+        'order': block.order
+    } for block in content_blocks]
+
     context = {
         'service': service,
         'content_blocks': content_blocks,
+        'content_blocks_json': content_blocks_json,
         'templates': templates,
         'is_create': False,
     }
