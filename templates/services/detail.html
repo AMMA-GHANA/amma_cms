@@ -46,7 +46,7 @@
                     {% if block.title %}
                     <h2 class="text-3xl font-secondary font-bold text-amma-black mb-6">{{ block.title }}</h2>
                     {% endif %}
-                    <div class="prose prose-lg max-w-none text-amma-gray leading-relaxed">
+                    <div class="prose prose-lg max-w-none leading-relaxed" style="color: {{ block.data.color|default:'#6c6c6c' }}">
                         {{ block.content|linebreaks }}
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                             <ul class="mt-4 space-y-2">
                                 {% for list_item in item.list %}
                                 <li class="flex items-start">
-                                    <svg class="w-5 h-5 text-amma-gold mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ block.data.color|default:'#d4af37' }}">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                     <span class="text-amma-gray">{{ list_item }}</span>
@@ -93,10 +93,10 @@
                     <ul class="space-y-3">
                         {% for item in block.data.items %}
                         <li class="flex items-start">
-                            <svg class="w-6 h-6 text-amma-gold mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ block.data.color|default:'#d4af37' }}">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="text-amma-gray text-lg">{{ item }}</span>
+                            <span class="text-lg" style="color: {{ block.data.color|default:'#6c6c6c' }}">{{ item }}</span>
                         </li>
                         {% endfor %}
                     </ul>
@@ -116,7 +116,7 @@
                         {% for step in block.data.steps %}
                         <div class="bg-white rounded-amma p-6 shadow-amma-light">
                             <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-gradient-to-br from-amma-gold to-amma-gold-dark rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4" style="background: {{ block.data.color|default:'#d4af37' }}">
                                     {{ forloop.counter }}
                                 </div>
                                 <h3 class="text-xl font-secondary font-semibold text-amma-black">{{ step.title }}</h3>
@@ -126,7 +126,7 @@
                             <ul class="mt-4 space-y-2">
                                 {% for list_item in step.list %}
                                 <li class="flex items-start">
-                                    <svg class="w-5 h-5 text-amma-gold mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ block.data.color|default:'#d4af37' }}">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                     <span class="text-amma-gray text-sm">{{ list_item }}</span>
@@ -143,16 +143,16 @@
                 <!-- Notice Block -->
                 {% if block.block_type == 'notice' %}
                 <div class="mb-12">
-                    <div class="bg-amma-gold-light border-l-4 border-amma-gold p-6 rounded-r-amma">
+                    <div class="border-l-4 p-6 rounded-r-amma" style="background-color: {{ block.data.color|default:'#d4af37' }}20; border-color: {{ block.data.color|default:'#d4af37' }}">
                         {% if block.title %}
                         <h3 class="text-xl font-secondary font-semibold text-amma-black mb-2 flex items-center">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ block.data.color|default:'#d4af37' }}">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             {{ block.title }}
                         </h3>
                         {% endif %}
-                        <p class="text-amma-gray-light">{{ block.content }}</p>
+                        <p style="color: {{ block.data.color|default:'#8c8c8c' }}">{{ block.content }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -165,7 +165,7 @@
                     {% endif %}
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white rounded-amma overflow-hidden shadow-amma-light">
-                            <thead class="bg-amma-gray text-white">
+                            <thead class="text-white" style="background-color: {{ block.data.color|default:'#6c6c6c' }}">
                                 <tr>
                                     {% for header in block.data.headers %}
                                     <th class="px-6 py-3 text-left text-sm font-semibold">{{ header }}</th>

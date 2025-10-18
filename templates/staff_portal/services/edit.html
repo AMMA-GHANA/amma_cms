@@ -211,6 +211,49 @@
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
 
+                            <!-- Color Picker -->
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Content Color</label>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <!-- Quick Color Buttons -->
+                                    <button @click="block.data.color = '#1a1a1a'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                            :class="(block.data.color === '#1a1a1a' || !block.data.color) ? 'border-gray-700 ring-2 ring-offset-2 ring-gray-500' : 'border-gray-300'"
+                                            style="background-color: #1a1a1a" title="Default/Black"></button>
+                                    <button @click="block.data.color = '#d4af37'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                                            :class="block.data.color === '#d4af37' ? 'border-gray-700 ring-2 ring-offset-2 ring-yellow-500' : 'border-gray-300'"
+                                            style="background-color: #d4af37" title="AMMA Gold"></button>
+                                    <button @click="block.data.color = '#10b981'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                            :class="block.data.color === '#10b981' ? 'border-gray-700 ring-2 ring-offset-2 ring-green-500' : 'border-gray-300'"
+                                            style="background-color: #10b981" title="Green"></button>
+                                    <button @click="block.data.color = '#3b82f6'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                            :class="block.data.color === '#3b82f6' ? 'border-gray-700 ring-2 ring-offset-2 ring-blue-500' : 'border-gray-300'"
+                                            style="background-color: #3b82f6" title="Blue"></button>
+                                    <button @click="block.data.color = '#ef4444'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            :class="block.data.color === '#ef4444' ? 'border-gray-700 ring-2 ring-offset-2 ring-red-500' : 'border-gray-300'"
+                                            style="background-color: #ef4444" title="Red"></button>
+                                    <button @click="block.data.color = '#8b5cf6'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                                            :class="block.data.color === '#8b5cf6' ? 'border-gray-700 ring-2 ring-offset-2 ring-purple-500' : 'border-gray-300'"
+                                            style="background-color: #8b5cf6" title="Purple"></button>
+                                    <button @click="block.data.color = '#6b7280'; updatePreview()" type="button"
+                                            class="w-8 h-8 rounded-full border-2 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                            :class="block.data.color === '#6b7280' ? 'border-gray-700 ring-2 ring-offset-2 ring-gray-500' : 'border-gray-300'"
+                                            style="background-color: #6b7280" title="Gray"></button>
+                                    <!-- Custom Color Picker -->
+                                    <div class="flex items-center gap-2 ml-2">
+                                        <label class="text-xs text-gray-600">Custom:</label>
+                                        <input type="color" x-model="block.data.color" @input="updatePreview"
+                                               class="w-10 h-8 rounded border border-gray-300 cursor-pointer">
+                                        <span class="text-xs text-gray-500" x-text="block.data.color || '#1a1a1a'"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Text Block -->
                             <template x-if="block.block_type === 'text'">
                                 <div>
@@ -496,6 +539,11 @@ function serviceEditor() {
                     collapsed: false
                 };
 
+                // Ensure color exists (backwards compatibility)
+                if (!blockData.data.color) {
+                    blockData.data.color = '#1a1a1a';
+                }
+
                 // Handle list blocks specially to add items_text
                 if (block.block_type === 'list' && block.data && block.data.items) {
                     blockData.data.items_text = block.data.items.join('\n');
@@ -529,19 +577,19 @@ function serviceEditor() {
                 block_type: type,
                 title: '',
                 content: '',
-                data: {},
+                data: { color: '#1a1a1a' },  // Default color
                 data_json: this.getDefaultDataJson(type),
                 collapsed: false
             };
 
             if (type === 'list') {
-                newBlock.data = { items: [], items_text: '' };
+                newBlock.data = { items: [], items_text: '', color: '#1a1a1a' };
             } else if (type === 'service_grid') {
-                newBlock.data = { items: [] };
+                newBlock.data = { items: [], color: '#1a1a1a' };
             } else if (type === 'steps') {
-                newBlock.data = { steps: [] };
+                newBlock.data = { steps: [], color: '#1a1a1a' };
             } else if (type === 'table') {
-                newBlock.data = { headers: [], rows: [] };
+                newBlock.data = { headers: [], rows: [], color: '#1a1a1a' };
             }
 
             this.blocks.push(newBlock);

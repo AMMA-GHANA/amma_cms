@@ -18,7 +18,7 @@
             {% if block.title %}
             <h3 class="font-semibold text-gray-900 mb-2 text-sm">{{ block.title }}</h3>
             {% endif %}
-            <p class="text-gray-600 text-xs leading-relaxed">{{ block.content|linebreaks }}</p>
+            <p class="text-xs leading-relaxed" style="color: {{ block.data.color|default:'#6c6c6c' }}">{{ block.content|linebreaks }}</p>
         </div>
         {% endif %}
 
@@ -36,9 +36,9 @@
                     {% if item.list %}
                     <ul class="mt-1 space-y-1">
                         {% for list_item in item.list %}
-                        <li class="text-xs text-gray-500 flex items-start">
-                            <span class="mr-1">•</span>
-                            <span>{{ list_item }}</span>
+                        <li class="text-xs flex items-start">
+                            <span class="mr-1" style="color: {{ block.data.color|default:'#d4af37' }}">✓</span>
+                            <span class="text-gray-500">{{ list_item }}</span>
                         </li>
                         {% endfor %}
                     </ul>
@@ -60,9 +60,9 @@
             {% endif %}
             <ul class="space-y-1">
                 {% for item in block.data.items %}
-                <li class="text-xs text-gray-600 flex items-start">
-                    <span class="text-yellow-600 mr-1">✓</span>
-                    <span>{{ item }}</span>
+                <li class="text-xs flex items-start">
+                    <span class="mr-1" style="color: {{ block.data.color|default:'#d4af37' }}">✓</span>
+                    <span style="color: {{ block.data.color|default:'#6c6c6c' }}">{{ item }}</span>
                 </li>
                 {% endfor %}
             </ul>
@@ -79,7 +79,7 @@
                 {% for step in block.data.steps %}
                 <div class="bg-white rounded p-2 border border-gray-200">
                     <div class="flex items-start">
-                        <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-xs mr-2 flex-shrink-0">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs mr-2 flex-shrink-0" style="background-color: {{ block.data.color|default:'#d4af37' }}">
                             {{ forloop.counter }}
                         </div>
                         <div class="flex-1">
@@ -102,11 +102,11 @@
 
         <!-- Notice Block -->
         {% if block.block_type == 'notice' %}
-        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded-r">
+        <div class="border-l-4 p-3 rounded-r" style="background-color: {{ block.data.color|default:'#d4af37' }}20; border-color: {{ block.data.color|default:'#d4af37' }}">
             {% if block.title %}
-            <h4 class="font-semibold text-yellow-900 text-xs mb-1">{{ block.title }}</h4>
+            <h4 class="font-semibold text-xs mb-1">{{ block.title }}</h4>
             {% endif %}
-            <p class="text-yellow-800 text-xs">{{ block.content }}</p>
+            <p class="text-xs" style="color: {{ block.data.color|default:'#8c8c8c' }}">{{ block.content }}</p>
         </div>
         {% endif %}
 
@@ -118,10 +118,10 @@
             {% endif %}
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border border-gray-200 text-xs">
-                    <thead class="bg-gray-100">
+                    <thead class="text-white" style="background-color: {{ block.data.color|default:'#6c6c6c' }}">
                         <tr>
                             {% for header in block.data.headers %}
-                            <th class="px-2 py-1 text-left font-semibold text-gray-700 border-b">{{ header }}</th>
+                            <th class="px-2 py-1 text-left font-semibold border-b">{{ header }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
