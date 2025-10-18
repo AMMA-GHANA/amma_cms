@@ -13,6 +13,7 @@ from apps.news.models import NewsArticle, NewsCategory
 from apps.staff.models import StaffMember
 from .decorators import staff_required
 from .block_templates import get_all_templates, get_template
+from .forms import NewsArticleForm
 
 
 @staff_required
@@ -293,14 +294,17 @@ def news_list(request):
 def news_create(request):
     """Create a new news article"""
     if request.method == 'POST':
-        return _save_news(request, None)
-
-    # GET request - show form
-    categories = NewsCategory.objects.all().order_by('name')
+        form = NewsArticleForm(request.POST, request.FILES)
+        if form.is_valid():
+            article = form.save()
+            messages.success(request, f'Article "{article.title}" created successfully.')
+            return redirect('staff_portal:news_list')
+    else:
+        form = NewsArticleForm()
 
     context = {
+        'form': form,
         'article': None,
-        'categories': categories,
         'is_create': True,
     }
     return render(request, 'staff_portal/news/edit.html', context)
@@ -313,71 +317,20 @@ def news_edit(request, pk):
     article = get_object_or_404(NewsArticle, pk=pk)
 
     if request.method == 'POST':
-        return _save_news(request, article)
-
-    # GET request - show form
-    categories = NewsCategory.objects.all().order_by('name')
+        form = NewsArticleForm(request.POST, request.FILES, instance=article)
+        if form.is_valid():
+            article = form.save()
+            messages.success(request, f'Article "{article.title}" updated successfully.')
+            return redirect('staff_portal:news_list')
+    else:
+        form = NewsArticleForm(instance=article)
 
     context = {
+        'form': form,
         'article': article,
-        'categories': categories,
         'is_create': False,
     }
     return render(request, 'staff_portal/news/edit.html', context)
-
-
-def _save_news(request, article):
-    """Helper function to save news article"""
-    try:
-        # Get form data
-        title = request.POST.get('title', '').strip()
-        slug = request.POST.get('slug', '').strip()
-        excerpt = request.POST.get('excerpt', '').strip()
-        content = request.POST.get('content', '').strip()
-        category_id = request.POST.get('category')
-        status = request.POST.get('status', 'draft')
-        is_featured = request.POST.get('is_featured') == 'on'
-        image_caption = request.POST.get('image_caption', '').strip()
-        meta_description = request.POST.get('meta_description', '').strip()
-        published_date = request.POST.get('published_date', '').strip()
-
-        # Validate required fields
-        if not title or not excerpt or not content or not category_id:
-            messages.error(request, 'Title, excerpt, content, and category are required.')
-            return redirect(request.path)
-
-        # Get or create the article
-        if article is None:
-            article = NewsArticle()
-
-        article.title = title
-        if slug:
-            article.slug = slug
-        article.excerpt = excerpt
-        article.content = content
-        article.category_id = category_id
-        article.status = status
-        article.is_featured = is_featured
-        article.image_caption = image_caption
-        article.meta_description = meta_description
-
-        # Handle published date
-        if published_date:
-            from django.utils.dateparse import parse_datetime
-            article.published_date = parse_datetime(published_date)
-
-        # Handle image upload
-        if 'featured_image' in request.FILES:
-            article.featured_image = request.FILES['featured_image']
-
-        article.save()
-
-        messages.success(request, f'Article "{article.title}" saved successfully.')
-        return redirect('staff_portal:news_list')
-
-    except Exception as e:
-        messages.error(request, f'Error saving article: {str(e)}')
-        return redirect(request.path)
 
 
 @staff_required

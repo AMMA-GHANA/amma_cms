@@ -4,8 +4,7 @@
 {% block title %}{% if is_create %}Create{% else %}Edit{% endif %} News Article{% endblock %}
 
 {% block extra_head %}
-<!-- CKEditor 5 -->
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+{{ form.media }}
 <style>
     .ck-editor__editable {
         min-height: 400px;
@@ -37,8 +36,14 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="newsEditor()" @submit="syncEditorContent">
+<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="newsEditor()">
     {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content Column -->
@@ -49,62 +54,50 @@
 
                 <!-- Title -->
                 <div class="mb-4">
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Title <span class="text-red-500">*</span>
                     </label>
-                    <input type="text"
-                           id="title"
-                           name="title"
-                           value="{{ article.title|default:'' }}"
-                           required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                           placeholder="Enter article title"
-                           x-model="title"
-                           @input="generateSlug()">
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Slug -->
                 <div class="mb-4">
-                    <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Slug (URL)
                     </label>
-                    <input type="text"
-                           id="slug"
-                           name="slug"
-                           value="{{ article.slug|default:'' }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                           placeholder="auto-generated-from-title"
-                           x-model="slug">
+                    {{ form.slug }}
                     <p class="mt-1 text-sm text-gray-500">Leave blank to auto-generate from title</p>
+                    {% if form.slug.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.slug.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Excerpt -->
                 <div class="mb-4">
-                    <label for="excerpt" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.excerpt.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Excerpt <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="excerpt"
-                              name="excerpt"
-                              required
-                              rows="3"
-                              maxlength="300"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                              placeholder="Brief summary (max 300 characters)"
-                              x-model="excerpt"
-                              @input="updateExcerptCount()">{{ article.excerpt|default:'' }}</textarea>
+                    {{ form.excerpt }}
                     <p class="mt-1 text-sm text-gray-500">
                         <span x-text="excerptCount"></span>/300 characters
                     </p>
+                    {% if form.excerpt.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.excerpt.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Content -->
                 <div class="mb-4">
-                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Content <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="content"
-                              name="content"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">{{ article.content|default:'' }}</textarea>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.content.errors.0 }}</p>
+                    {% endif %}
                 </div>
             </div>
 
@@ -114,20 +107,16 @@
 
                 <!-- Meta Description -->
                 <div class="mb-4">
-                    <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.meta_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Meta Description
                     </label>
-                    <textarea id="meta_description"
-                              name="meta_description"
-                              rows="2"
-                              maxlength="160"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                              placeholder="SEO description (max 160 characters)"
-                              x-model="metaDescription"
-                              @input="updateMetaCount()">{{ article.meta_description|default:'' }}</textarea>
+                    {{ form.meta_description }}
                     <p class="mt-1 text-sm text-gray-500">
                         <span x-text="metaCount"></span>/160 characters. Leave blank to use excerpt.
                     </p>
+                    {% if form.meta_description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.meta_description.errors.0 }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -140,44 +129,39 @@
 
                 <!-- Status -->
                 <div class="mb-4">
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Status <span class="text-red-500">*</span>
                     </label>
-                    <select id="status"
-                            name="status"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
-                        <option value="draft" {% if not article or article.status == 'draft' %}selected{% endif %}>Draft</option>
-                        <option value="published" {% if article and article.status == 'published' %}selected{% endif %}>Published</option>
-                        <option value="archived" {% if article and article.status == 'archived' %}selected{% endif %}>Archived</option>
-                    </select>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Published Date -->
                 <div class="mb-4">
-                    <label for="published_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.published_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Published Date
                     </label>
-                    <input type="datetime-local"
-                           id="published_date"
-                           name="published_date"
-                           value="{% if article.published_date %}{{ article.published_date|date:'Y-m-d\TH:i' }}{% endif %}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
+                    {{ form.published_date }}
                     <p class="mt-1 text-sm text-gray-500">Auto-set when published</p>
+                    {% if form.published_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.published_date.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Featured -->
                 <div class="mb-4">
                     <label class="flex items-center">
-                        <input type="checkbox"
-                               name="is_featured"
-                               {% if article.is_featured %}checked{% endif %}
-                               class="rounded border-gray-300 text-amma-gold focus:ring-amma-gold">
+                        {{ form.is_featured }}
                         <span class="ml-2 text-sm font-medium text-gray-700">
                             Featured Article
                         </span>
                     </label>
                     <p class="mt-1 text-sm text-gray-500">Show on homepage</p>
+                    {% if form.is_featured.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.is_featured.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Save Buttons -->
@@ -201,21 +185,13 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Category</h2>
 
                 <div class="mb-4">
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Category <span class="text-red-500">*</span>
                     </label>
-                    <select id="category"
-                            name="category"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
-                        <option value="">Select a category</option>
-                        {% for category in categories %}
-                        <option value="{{ category.id }}"
-                                {% if article and article.category_id == category.id %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Quick Add Category Button -->
@@ -246,16 +222,14 @@
 
                 <!-- Image Upload -->
                 <div class="mb-4">
-                    <label for="featured_image" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.featured_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         {% if article.featured_image %}Change Image{% else %}Upload Image{% endif %}
                     </label>
-                    <input type="file"
-                           id="featured_image"
-                           name="featured_image"
-                           accept="image/*"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                           @change="previewImage($event)">
+                    {{ form.featured_image }}
                     <p class="mt-1 text-sm text-gray-500">Recommended: 800x600px</p>
+                    {% if form.featured_image.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.featured_image.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Image Preview -->
@@ -269,15 +243,13 @@
 
                 <!-- Image Caption -->
                 <div class="mb-4">
-                    <label for="image_caption" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="{{ form.image_caption.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                         Image Caption
                     </label>
-                    <input type="text"
-                           id="image_caption"
-                           name="image_caption"
-                           value="{{ article.image_caption|default:'' }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
-                           placeholder="Optional caption">
+                    {{ form.image_caption }}
+                    {% if form.image_caption.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.image_caption.errors.0 }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -351,29 +323,11 @@
 
 {% block extra_scripts %}
 <script>
-    // Initialize CKEditor
-    ClassicEditor
-        .create(document.querySelector('#content'), {
-            toolbar: ['heading', '|', 'bold', 'italic', 'link', '|',
-                     'bulletedList', 'numberedList', 'blockQuote', '|',
-                     'undo', 'redo']
-        })
-        .then(newEditor => {
-            window.editor = newEditor;
-        })
-        .catch(error => {
-            console.error(error);
-        });
-
     // Alpine.js component
     function newsEditor() {
         return {
-            title: '{{ article.title|default:""|escapejs }}',
-            slug: '{{ article.slug|default:""|escapejs }}',
-            excerpt: '{{ article.excerpt|default:""|escapejs }}',
-            excerptCount: {{ article.excerpt|length|default:0 }},
-            metaDescription: '{{ article.meta_description|default:""|escapejs }}',
-            metaCount: {{ article.meta_description|length|default:0 }},
+            excerptCount: {{ form.excerpt.value|default:""|length }},
+            metaCount: {{ form.meta_description.value|default:""|length }},
             imagePreview: null,
             showCategoryModal: false,
             newCategory: {
@@ -384,47 +338,51 @@
             categoryError: '',
             categoryLoading: false,
 
-            syncEditorContent(event) {
-                // Sync CKEditor data to the hidden textarea before form submission
-                if (window.editor) {
-                    const editorData = window.editor.getData();
-                    const contentField = document.querySelector('#content');
-                    contentField.value = editorData;
-
-                    // Validate that content is not empty
-                    if (!editorData.trim() || editorData.trim() === '<p>&nbsp;</p>' || editorData.trim() === '<p></p>') {
-                        event.preventDefault();
-                        alert('Content is required. Please add some content to your article.');
-                        return false;
+            init() {
+                // Watch excerpt field for character count
+                this.$watch('excerptCount', () => {
+                    const excerpt = document.querySelector('#{{ form.excerpt.id_for_label }}');
+                    if (excerpt) {
+                        this.excerptCount = excerpt.value.length;
                     }
+                });
+
+                // Watch meta description for character count
+                this.$watch('metaCount', () => {
+                    const meta = document.querySelector('#{{ form.meta_description.id_for_label }}');
+                    if (meta) {
+                        this.metaCount = meta.value.length;
+                    }
+                });
+
+                // Attach image preview handler
+                const imageInput = document.querySelector('#{{ form.featured_image.id_for_label }}');
+                if (imageInput) {
+                    imageInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                this.imagePreview = event.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
                 }
-            },
 
-            generateSlug() {
-                if (!this.slug || this.slug === '') {
-                    this.slug = this.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/(^-|-$)/g, '');
+                // Update character counts on input
+                const excerptField = document.querySelector('#{{ form.excerpt.id_for_label }}');
+                if (excerptField) {
+                    excerptField.addEventListener('input', () => {
+                        this.excerptCount = excerptField.value.length;
+                    });
                 }
-            },
 
-            updateExcerptCount() {
-                this.excerptCount = this.excerpt.length;
-            },
-
-            updateMetaCount() {
-                this.metaCount = this.metaDescription.length;
-            },
-
-            previewImage(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.imagePreview = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
+                const metaField = document.querySelector('#{{ form.meta_description.id_for_label }}');
+                if (metaField) {
+                    metaField.addEventListener('input', () => {
+                        this.metaCount = metaField.value.length;
+                    });
                 }
             },
 
@@ -453,7 +411,7 @@
 
                     if (data.success) {
                         // Add new category to dropdown
-                        const select = document.getElementById('category');
+                        const select = document.getElementById('{{ form.category.id_for_label }}');
                         const option = new Option(data.category.name, data.category.id, true, true);
                         select.add(option);
 
