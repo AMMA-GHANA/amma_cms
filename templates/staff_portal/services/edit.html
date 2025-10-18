@@ -240,14 +240,180 @@
                                 </div>
                             </template>
 
-                            <!-- Service Grid / Steps / Table - JSON Editor -->
-                            <template x-if="['service_grid', 'steps', 'table'].includes(block.block_type)">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Data (JSON)</label>
-                                    <textarea x-model="block.data_json" @input="updateBlockData(index)" rows="8"
-                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono text-xs"
-                                              :placeholder="getDataPlaceholder(block.block_type)"></textarea>
-                                    <p class="text-xs text-gray-500 mt-1">Enter JSON data for this block type</p>
+                            <!-- Service Grid - Visual Builder -->
+                            <template x-if="block.block_type === 'service_grid'">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-sm font-medium text-gray-700">Service Items</label>
+                                        <button @click="addGridItem(index)" type="button"
+                                                class="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                            + Add Item
+                                        </button>
+                                    </div>
+
+                                    <template x-for="(item, itemIdx) in block.data.items" :key="itemIdx">
+                                        <div class="border border-gray-300 rounded-lg p-3 bg-white">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="text-xs font-medium text-gray-500">Item #<span x-text="itemIdx + 1"></span></span>
+                                                <button @click="removeGridItem(index, itemIdx)" type="button"
+                                                        class="text-red-500 hover:text-red-700 text-xs font-medium">
+                                                    Remove
+                                                </button>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <input type="text" x-model="item.title" @input="updatePreview"
+                                                       placeholder="Item Title (e.g., Food Handlers Certificate)"
+                                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+                                                <textarea x-model="item.description" @input="updatePreview"
+                                                          placeholder="Description" rows="2"
+                                                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+
+                                                <!-- List items for this service box -->
+                                                <div class="ml-2 mt-2">
+                                                    <label class="text-xs font-medium text-gray-600 mb-1 block">List Items (optional):</label>
+                                                    <template x-for="(listItem, listIdx) in item.list" :key="listIdx">
+                                                        <div class="flex gap-2 mb-1">
+                                                            <input type="text" x-model="item.list[listIdx]" @input="updatePreview"
+                                                                   placeholder="List item"
+                                                                   class="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                                            <button @click="removeGridItemListItem(index, itemIdx, listIdx)" type="button"
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm px-2">×</button>
+                                                        </div>
+                                                    </template>
+                                                    <button @click="addGridItemListItem(index, itemIdx)" type="button"
+                                                            class="text-xs text-blue-500 hover:text-blue-700 mt-1 font-medium">+ Add List Item</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <div x-show="!block.data.items || block.data.items.length === 0"
+                                         class="text-center py-6 text-xs text-gray-400 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                                        No items yet. Click "Add Item" to get started.
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Process Steps - Visual Builder -->
+                            <template x-if="block.block_type === 'steps'">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-sm font-medium text-gray-700">Process Steps</label>
+                                        <button @click="addStep(index)" type="button"
+                                                class="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                            + Add Step
+                                        </button>
+                                    </div>
+
+                                    <template x-for="(step, stepIdx) in block.data.steps" :key="stepIdx">
+                                        <div class="border border-gray-300 rounded-lg p-3 bg-white">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="text-xs font-medium text-gray-500">Step #<span x-text="stepIdx + 1"></span></span>
+                                                <button @click="removeStep(index, stepIdx)" type="button"
+                                                        class="text-red-500 hover:text-red-700 text-xs font-medium">
+                                                    Remove
+                                                </button>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <input type="text" x-model="step.title" @input="updatePreview"
+                                                       placeholder="Step Title (e.g., Submission)"
+                                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+                                                <textarea x-model="step.description" @input="updatePreview"
+                                                          placeholder="Description" rows="2"
+                                                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+
+                                                <!-- Requirements/list items for this step -->
+                                                <div class="ml-2 mt-2">
+                                                    <label class="text-xs font-medium text-gray-600 mb-1 block">Requirements (optional):</label>
+                                                    <template x-for="(requirement, reqIdx) in step.list" :key="reqIdx">
+                                                        <div class="flex gap-2 mb-1">
+                                                            <input type="text" x-model="step.list[reqIdx]" @input="updatePreview"
+                                                                   placeholder="Requirement"
+                                                                   class="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                                            <button @click="removeStepListItem(index, stepIdx, reqIdx)" type="button"
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm px-2">×</button>
+                                                        </div>
+                                                    </template>
+                                                    <button @click="addStepListItem(index, stepIdx)" type="button"
+                                                            class="text-xs text-blue-500 hover:text-blue-700 mt-1 font-medium">+ Add Requirement</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <div x-show="!block.data.steps || block.data.steps.length === 0"
+                                         class="text-center py-6 text-xs text-gray-400 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                                        No steps yet. Click "Add Step" to get started.
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Table - Visual Builder -->
+                            <template x-if="block.block_type === 'table'">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <label class="text-sm font-medium text-gray-700">Table Editor</label>
+                                        <div class="flex gap-2">
+                                            <button @click="addTableColumn(index)" type="button"
+                                                    class="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                                                + Add Column
+                                            </button>
+                                            <button @click="addTableRow(index)" type="button"
+                                                    class="text-xs px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                                                + Add Row
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div x-show="block.data.headers && block.data.headers.length > 0"
+                                         class="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                        <!-- Headers -->
+                                        <div class="bg-gray-100 border-b border-gray-300">
+                                            <div class="flex">
+                                                <template x-for="(header, colIdx) in block.data.headers" :key="colIdx">
+                                                    <div class="flex-1 min-w-[150px] p-2 border-r border-gray-300 last:border-r-0">
+                                                        <div class="flex gap-1 items-center">
+                                                            <input type="text" x-model="block.data.headers[colIdx]" @input="updatePreview"
+                                                                   placeholder="Header"
+                                                                   class="flex-1 px-2 py-1 text-xs font-medium border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-white">
+                                                            <button @click="removeTableColumn(index, colIdx)" type="button"
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm px-1"
+                                                                    title="Remove column">×</button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- Rows -->
+                                        <div>
+                                            <template x-for="(row, rowIdx) in block.data.rows" :key="rowIdx">
+                                                <div class="flex border-b border-gray-300 last:border-b-0">
+                                                    <template x-for="(cell, colIdx) in row" :key="colIdx">
+                                                        <div class="flex-1 min-w-[150px] p-2 border-r border-gray-300 last:border-r-0">
+                                                            <input type="text" x-model="block.data.rows[rowIdx][colIdx]" @input="updatePreview"
+                                                                   placeholder="Data"
+                                                                   class="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                                                        </div>
+                                                    </template>
+                                                    <div class="flex items-center px-2">
+                                                        <button @click="removeTableRow(index, rowIdx)" type="button"
+                                                                class="text-red-500 hover:text-red-700 font-bold text-sm"
+                                                                title="Remove row">×</button>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div x-show="!block.data.headers || block.data.headers.length === 0"
+                                         class="text-center py-6 text-xs text-gray-400 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                                        No table yet. Click "Add Column" to get started.
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -319,21 +485,40 @@ function serviceEditor() {
             // Load existing blocks if editing
             {% if content_blocks %}
             {% for block in content_blocks %}
-            this.blocks.push({
+            const blockData = {
                 id: this.nextBlockId++,
                 block_type: '{{ block.block_type }}',
                 title: '{{ block.title|escapejs }}',
                 content: '{{ block.content|escapejs }}',
-                data: {{ block.data|safe }},
-                data_json: JSON.stringify({{ block.data|safe }}, null, 2),
-                {% if block.block_type == 'list' %}
-                data: {
-                    items: {{ block.data.items|safe }},
-                    items_text: {{ block.data.items|safe }}.join('\n')
-                },
-                {% endif %}
                 collapsed: false
-            });
+            };
+
+            // Handle block-specific data structures
+            {% if block.block_type == 'list' %}
+            blockData.data = {
+                items: {{ block.data.items|safe }},
+                items_text: {{ block.data.items|safe }}.join('\n')
+            };
+            {% elif block.block_type == 'service_grid' %}
+            blockData.data = {
+                items: {{ block.data.items|default:"[]"|safe }}
+            };
+            {% elif block.block_type == 'steps' %}
+            blockData.data = {
+                steps: {{ block.data.steps|default:"[]"|safe }}
+            };
+            {% elif block.block_type == 'table' %}
+            blockData.data = {
+                headers: {{ block.data.headers|default:"[]"|safe }},
+                rows: {{ block.data.rows|default:"[]"|safe }}
+            };
+            {% else %}
+            // For text and notice blocks
+            blockData.data = {{ block.data|safe }};
+            blockData.data_json = JSON.stringify({{ block.data|safe }}, null, 2);
+            {% endif %}
+
+            this.blocks.push(blockData);
             {% endfor %}
             {% endif %}
 
@@ -368,6 +553,12 @@ function serviceEditor() {
 
             if (type === 'list') {
                 newBlock.data = { items: [], items_text: '' };
+            } else if (type === 'service_grid') {
+                newBlock.data = { items: [] };
+            } else if (type === 'steps') {
+                newBlock.data = { steps: [] };
+            } else if (type === 'table') {
+                newBlock.data = { headers: [], rows: [] };
             }
 
             this.blocks.push(newBlock);
@@ -441,6 +632,104 @@ function serviceEditor() {
                 'table': '{"headers": ["Column 1", "Column 2"], "rows": [["Data 1", "Data 2"]]}'
             };
             return placeholders[type] || '{}';
+        },
+
+        // Service Grid helpers
+        addGridItem(blockIndex) {
+            if (!this.blocks[blockIndex].data.items) {
+                this.blocks[blockIndex].data.items = [];
+            }
+            this.blocks[blockIndex].data.items.push({
+                title: '',
+                description: '',
+                list: []
+            });
+            this.updatePreview();
+        },
+
+        removeGridItem(blockIndex, itemIndex) {
+            this.blocks[blockIndex].data.items.splice(itemIndex, 1);
+            this.updatePreview();
+        },
+
+        addGridItemListItem(blockIndex, itemIndex) {
+            if (!this.blocks[blockIndex].data.items[itemIndex].list) {
+                this.blocks[blockIndex].data.items[itemIndex].list = [];
+            }
+            this.blocks[blockIndex].data.items[itemIndex].list.push('');
+            this.updatePreview();
+        },
+
+        removeGridItemListItem(blockIndex, itemIndex, listIndex) {
+            this.blocks[blockIndex].data.items[itemIndex].list.splice(listIndex, 1);
+            this.updatePreview();
+        },
+
+        // Process Steps helpers
+        addStep(blockIndex) {
+            if (!this.blocks[blockIndex].data.steps) {
+                this.blocks[blockIndex].data.steps = [];
+            }
+            this.blocks[blockIndex].data.steps.push({
+                title: '',
+                description: '',
+                list: []
+            });
+            this.updatePreview();
+        },
+
+        removeStep(blockIndex, stepIndex) {
+            this.blocks[blockIndex].data.steps.splice(stepIndex, 1);
+            this.updatePreview();
+        },
+
+        addStepListItem(blockIndex, stepIndex) {
+            if (!this.blocks[blockIndex].data.steps[stepIndex].list) {
+                this.blocks[blockIndex].data.steps[stepIndex].list = [];
+            }
+            this.blocks[blockIndex].data.steps[stepIndex].list.push('');
+            this.updatePreview();
+        },
+
+        removeStepListItem(blockIndex, stepIndex, listIndex) {
+            this.blocks[blockIndex].data.steps[stepIndex].list.splice(listIndex, 1);
+            this.updatePreview();
+        },
+
+        // Table helpers
+        addTableColumn(blockIndex) {
+            if (!this.blocks[blockIndex].data.headers) {
+                this.blocks[blockIndex].data.headers = [];
+            }
+            if (!this.blocks[blockIndex].data.rows) {
+                this.blocks[blockIndex].data.rows = [];
+            }
+            this.blocks[blockIndex].data.headers.push('Column ' + (this.blocks[blockIndex].data.headers.length + 1));
+            this.blocks[blockIndex].data.rows.forEach(row => row.push(''));
+            this.updatePreview();
+        },
+
+        removeTableColumn(blockIndex, colIndex) {
+            this.blocks[blockIndex].data.headers.splice(colIndex, 1);
+            this.blocks[blockIndex].data.rows.forEach(row => row.splice(colIndex, 1));
+            this.updatePreview();
+        },
+
+        addTableRow(blockIndex) {
+            if (!this.blocks[blockIndex].data.headers) {
+                this.blocks[blockIndex].data.headers = [];
+            }
+            if (!this.blocks[blockIndex].data.rows) {
+                this.blocks[blockIndex].data.rows = [];
+            }
+            const colCount = this.blocks[blockIndex].data.headers.length;
+            this.blocks[blockIndex].data.rows.push(Array(colCount).fill(''));
+            this.updatePreview();
+        },
+
+        removeTableRow(blockIndex, rowIndex) {
+            this.blocks[blockIndex].data.rows.splice(rowIndex, 1);
+            this.updatePreview();
         },
 
         updatePreview() {
