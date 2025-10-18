@@ -37,7 +37,7 @@
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="newsEditor()">
+<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="newsEditor()" @submit="syncEditorContent">
     {% csrf_token %}
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,7 +104,6 @@
                     </label>
                     <textarea id="content"
                               name="content"
-                              required
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">{{ article.content|default:'' }}</textarea>
                 </div>
             </div>
@@ -353,7 +352,6 @@
 {% block extra_scripts %}
 <script>
     // Initialize CKEditor
-    let editor;
     ClassicEditor
         .create(document.querySelector('#content'), {
             toolbar: ['heading', '|', 'bold', 'italic', 'link', '|',
@@ -361,7 +359,7 @@
                      'undo', 'redo']
         })
         .then(newEditor => {
-            editor = newEditor;
+            window.editor = newEditor;
         })
         .catch(error => {
             console.error(error);
@@ -385,6 +383,22 @@
             },
             categoryError: '',
             categoryLoading: false,
+
+            syncEditorContent(event) {
+                // Sync CKEditor data to the hidden textarea before form submission
+                if (window.editor) {
+                    const editorData = window.editor.getData();
+                    const contentField = document.querySelector('#content');
+                    contentField.value = editorData;
+
+                    // Validate that content is not empty
+                    if (!editorData.trim() || editorData.trim() === '<p>&nbsp;</p>' || editorData.trim() === '<p></p>') {
+                        event.preventDefault();
+                        alert('Content is required. Please add some content to your article.');
+                        return false;
+                    }
+                }
+            },
 
             generateSlug() {
                 if (!this.slug || this.slug === '') {

@@ -366,14 +366,6 @@ def _save_news(request, article):
             from django.utils.dateparse import parse_datetime
             article.published_date = parse_datetime(published_date)
 
-        # Set author to current user's staff member if available
-        if not article.author_id:
-            try:
-                staff_member = StaffMember.objects.get(user=request.user)
-                article.author = staff_member
-            except StaffMember.DoesNotExist:
-                pass
-
         # Handle image upload
         if 'featured_image' in request.FILES:
             article.featured_image = request.FILES['featured_image']
