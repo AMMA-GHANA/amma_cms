@@ -1,0 +1,465 @@
+{% extends "staff_portal/base.html" %}
+{% load static %}
+
+{% block title %}{% if is_create %}Create{% else %}Edit{% endif %} News Article{% endblock %}
+
+{% block extra_head %}
+<!-- CKEditor 5 -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<style>
+    .ck-editor__editable {
+        min-height: 400px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                {% if is_create %}Create New Article{% else %}Edit Article{% endif %}
+            </h1>
+            <p class="mt-2 text-gray-600">
+                {% if is_create %}
+                    Create and publish a new news article
+                {% else %}
+                    Editing: {{ article.title }}
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'staff_portal:news_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to List
+        </a>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="newsEditor()">
+    {% csrf_token %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Article Content</h2>
+
+                <!-- Title -->
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="title"
+                           name="title"
+                           value="{{ article.title|default:'' }}"
+                           required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                           placeholder="Enter article title"
+                           x-model="title"
+                           @input="generateSlug()">
+                </div>
+
+                <!-- Slug -->
+                <div class="mb-4">
+                    <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                        Slug (URL)
+                    </label>
+                    <input type="text"
+                           id="slug"
+                           name="slug"
+                           value="{{ article.slug|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                           placeholder="auto-generated-from-title"
+                           x-model="slug">
+                    <p class="mt-1 text-sm text-gray-500">Leave blank to auto-generate from title</p>
+                </div>
+
+                <!-- Excerpt -->
+                <div class="mb-4">
+                    <label for="excerpt" class="block text-sm font-medium text-gray-700 mb-2">
+                        Excerpt <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="excerpt"
+                              name="excerpt"
+                              required
+                              rows="3"
+                              maxlength="300"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                              placeholder="Brief summary (max 300 characters)"
+                              x-model="excerpt"
+                              @input="updateExcerptCount()">{{ article.excerpt|default:'' }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">
+                        <span x-text="excerptCount"></span>/300 characters
+                    </p>
+                </div>
+
+                <!-- Content -->
+                <div class="mb-4">
+                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+                        Content <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="content"
+                              name="content"
+                              required
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">{{ article.content|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- SEO Section -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">SEO & Meta Data</h2>
+
+                <!-- Meta Description -->
+                <div class="mb-4">
+                    <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Meta Description
+                    </label>
+                    <textarea id="meta_description"
+                              name="meta_description"
+                              rows="2"
+                              maxlength="160"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                              placeholder="SEO description (max 160 characters)"
+                              x-model="metaDescription"
+                              @input="updateMetaCount()">{{ article.meta_description|default:'' }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">
+                        <span x-text="metaCount"></span>/160 characters. Leave blank to use excerpt.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Publishing Options -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Publishing</h2>
+
+                <!-- Status -->
+                <div class="mb-4">
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                        Status <span class="text-red-500">*</span>
+                    </label>
+                    <select id="status"
+                            name="status"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
+                        <option value="draft" {% if not article or article.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="published" {% if article and article.status == 'published' %}selected{% endif %}>Published</option>
+                        <option value="archived" {% if article and article.status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+
+                <!-- Published Date -->
+                <div class="mb-4">
+                    <label for="published_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Published Date
+                    </label>
+                    <input type="datetime-local"
+                           id="published_date"
+                           name="published_date"
+                           value="{% if article.published_date %}{{ article.published_date|date:'Y-m-d\TH:i' }}{% endif %}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
+                    <p class="mt-1 text-sm text-gray-500">Auto-set when published</p>
+                </div>
+
+                <!-- Featured -->
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox"
+                               name="is_featured"
+                               {% if article.is_featured %}checked{% endif %}
+                               class="rounded border-gray-300 text-amma-gold focus:ring-amma-gold">
+                        <span class="ml-2 text-sm font-medium text-gray-700">
+                            Featured Article
+                        </span>
+                    </label>
+                    <p class="mt-1 text-sm text-gray-500">Show on homepage</p>
+                </div>
+
+                <!-- Save Buttons -->
+                <div class="pt-4 border-t border-gray-200 space-y-2">
+                    <button type="submit"
+                            class="w-full px-4 py-2 bg-amma-gold hover:bg-amma-gold-dark text-white font-semibold rounded-lg transition shadow-sm">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Save Article
+                    </button>
+                    <a href="{% url 'staff_portal:news_list' %}"
+                       class="block w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition text-center">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Category</h2>
+
+                <div class="mb-4">
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                        Category <span class="text-red-500">*</span>
+                    </label>
+                    <select id="category"
+                            name="category"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
+                        <option value="">Select a category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}"
+                                {% if article and article.category_id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quick Add Category Button -->
+                <button type="button"
+                        @click="showCategoryModal = true"
+                        class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition border border-gray-300">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add New Category
+                </button>
+            </div>
+
+            <!-- Featured Image -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Featured Image</h2>
+
+                <!-- Current Image -->
+                {% if article.featured_image %}
+                <div class="mb-4">
+                    <img src="{{ article.featured_image.url }}"
+                         alt="{{ article.title }}"
+                         class="w-full h-auto rounded-lg"
+                         id="current-image">
+                    <p class="mt-2 text-sm text-gray-500">Current image</p>
+                </div>
+                {% endif %}
+
+                <!-- Image Upload -->
+                <div class="mb-4">
+                    <label for="featured_image" class="block text-sm font-medium text-gray-700 mb-2">
+                        {% if article.featured_image %}Change Image{% else %}Upload Image{% endif %}
+                    </label>
+                    <input type="file"
+                           id="featured_image"
+                           name="featured_image"
+                           accept="image/*"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                           @change="previewImage($event)">
+                    <p class="mt-1 text-sm text-gray-500">Recommended: 800x600px</p>
+                </div>
+
+                <!-- Image Preview -->
+                <div x-show="imagePreview" class="mb-4">
+                    <img :src="imagePreview"
+                         alt="Preview"
+                         class="w-full h-auto rounded-lg"
+                         id="preview-image">
+                    <p class="mt-2 text-sm text-gray-500">New image preview</p>
+                </div>
+
+                <!-- Image Caption -->
+                <div class="mb-4">
+                    <label for="image_caption" class="block text-sm font-medium text-gray-700 mb-2">
+                        Image Caption
+                    </label>
+                    <input type="text"
+                           id="image_caption"
+                           name="image_caption"
+                           value="{{ article.image_caption|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                           placeholder="Optional caption">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Category Creation Modal -->
+<div x-show="showCategoryModal"
+     x-cloak
+     class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+     @click.self="showCategoryModal = false">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Create New Category</h3>
+
+            <div class="mb-4">
+                <label for="new_category_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       id="new_category_name"
+                       x-model="newCategory.name"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                       placeholder="e.g., Council News">
+            </div>
+
+            <div class="mb-4">
+                <label for="new_category_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea id="new_category_description"
+                          x-model="newCategory.description"
+                          rows="2"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                          placeholder="Optional description"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="new_category_color" class="block text-sm font-medium text-gray-700 mb-2">
+                    Color
+                </label>
+                <input type="color"
+                       id="new_category_color"
+                       x-model="newCategory.color"
+                       class="w-full h-10 px-2 py-1 border border-gray-300 rounded-lg">
+            </div>
+
+            <div x-show="categoryError"
+                 class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"
+                 x-text="categoryError">
+            </div>
+
+            <div class="flex gap-3">
+                <button @click="createCategory()"
+                        :disabled="!newCategory.name || categoryLoading"
+                        :class="categoryLoading ? 'opacity-50 cursor-not-allowed' : ''"
+                        class="flex-1 px-4 py-2 bg-amma-gold hover:bg-amma-gold-dark text-white font-semibold rounded-lg transition">
+                    <span x-show="!categoryLoading">Create</span>
+                    <span x-show="categoryLoading">Creating...</span>
+                </button>
+                <button @click="showCategoryModal = false"
+                        class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Initialize CKEditor
+    let editor;
+    ClassicEditor
+        .create(document.querySelector('#content'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', '|',
+                     'bulletedList', 'numberedList', 'blockQuote', '|',
+                     'undo', 'redo']
+        })
+        .then(newEditor => {
+            editor = newEditor;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+    // Alpine.js component
+    function newsEditor() {
+        return {
+            title: '{{ article.title|default:""|escapejs }}',
+            slug: '{{ article.slug|default:""|escapejs }}',
+            excerpt: '{{ article.excerpt|default:""|escapejs }}',
+            excerptCount: {{ article.excerpt|length|default:0 }},
+            metaDescription: '{{ article.meta_description|default:""|escapejs }}',
+            metaCount: {{ article.meta_description|length|default:0 }},
+            imagePreview: null,
+            showCategoryModal: false,
+            newCategory: {
+                name: '',
+                description: '',
+                color: '#d4af37'
+            },
+            categoryError: '',
+            categoryLoading: false,
+
+            generateSlug() {
+                if (!this.slug || this.slug === '') {
+                    this.slug = this.title
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/(^-|-$)/g, '');
+                }
+            },
+
+            updateExcerptCount() {
+                this.excerptCount = this.excerpt.length;
+            },
+
+            updateMetaCount() {
+                this.metaCount = this.metaDescription.length;
+            },
+
+            previewImage(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            async createCategory() {
+                if (!this.newCategory.name.trim()) {
+                    this.categoryError = 'Category name is required';
+                    return;
+                }
+
+                this.categoryLoading = true;
+                this.categoryError = '';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('name', this.newCategory.name);
+                    formData.append('description', this.newCategory.description);
+                    formData.append('color', this.newCategory.color);
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                    const response = await fetch('{% url "staff_portal:news_category_create_api" %}', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Add new category to dropdown
+                        const select = document.getElementById('category');
+                        const option = new Option(data.category.name, data.category.id, true, true);
+                        select.add(option);
+
+                        // Reset form and close modal
+                        this.newCategory = { name: '', description: '', color: '#d4af37' };
+                        this.showCategoryModal = false;
+                    } else {
+                        this.categoryError = data.error || 'Failed to create category';
+                    }
+                } catch (error) {
+                    this.categoryError = 'Network error: ' + error.message;
+                } finally {
+                    this.categoryLoading = false;
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+{% endblock %}

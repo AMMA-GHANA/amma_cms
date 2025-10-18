@@ -19,4 +19,13 @@ urlpatterns = [
     path('api/services/preview/', views.service_preview_api, name='service_preview_api'),
     path('api/services/<int:pk>/blocks/reorder/', views.service_blocks_reorder_api, name='service_blocks_reorder_api'),
     path('api/templates/<str:template_key>/', views.get_template_api, name='get_template_api'),
+
+    # News Management
+    path('news/', views.news_list, name='news_list'),
+    path('news/create/', views.news_create, name='news_create'),
+    path('news/<int:pk>/edit/', views.news_edit, name='news_edit'),
+    path('news/<int:pk>/delete/', views.news_delete, name='news_delete'),
+
+    # News API endpoints
+    path('api/news/categories/create/', views.news_category_create_api, name='news_category_create_api'),
 ]
