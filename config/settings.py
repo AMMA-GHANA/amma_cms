@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.staff_portal.middleware.RestrictAdminMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'apps.core.context_processors.site_settings',
+                'apps.staff_portal.context_processors.portal_permissions',
             ],
         },
     },
