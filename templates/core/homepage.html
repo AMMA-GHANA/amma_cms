@@ -142,21 +142,19 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for service in services %}
-                <div class="bg-amma-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2">
+                <a href="{{ service.get_absolute_url }}" class="block bg-amma-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2 group">
                     <div class="w-16 h-16 bg-gradient-to-br from-amma-gold to-amma-gold-dark rounded-full flex items-center justify-center mb-6 text-white">
                         {% include 'components/_lucide_icon.html' with icon=service.icon size=32 stroke_width=2 %}
                     </div>
                     <h3 class="text-2xl font-secondary font-semibold text-amma-black mb-4">{{ service.name }}</h3>
                     <p class="text-amma-gray leading-relaxed mb-6">{{ service.description }}</p>
-                    {% if service.link_url %}
-                        <a href="{{ service.link_url }}" class="inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
-                            {{ service.link_text }}
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    {% endif %}
-                </div>
+                    <span class="inline-flex items-center text-amma-gold group-hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                        {{ service.link_text }}
+                        <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </span>
+                </a>
             {% endfor %}
         </div>
 

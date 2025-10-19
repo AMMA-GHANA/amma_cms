@@ -23,7 +23,7 @@ def homepage(request):
         'hero_slides': HeroSlide.objects.filter(is_active=True).order_by('order')[:8],
         'statistics': Statistic.objects.filter(is_active=True).order_by('order')[:4],
         'about_section': AboutSection.load(),
-        'services': Service.objects.filter(is_active=True).order_by('order')[:6],
+        'services': Service.objects.filter(is_active=True).order_by('order')[:3],
         'featured_news': NewsArticle.objects.filter(
             status='published',
             is_featured=True
