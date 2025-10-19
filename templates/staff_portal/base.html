@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Staff Portal{% endblock %} - AMMA CMS</title>
+    <title>{% block title %}AMMA CMS Portal{% endblock %} - AMMA CMS</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,7 +42,7 @@
                 <div class="flex items-center">
                     <a href="{% url 'staff_portal:dashboard' %}" class="flex items-center">
                         <span class="text-2xl font-bold text-amma-gold">AMMA</span>
-                        <span class="ml-2 text-lg">Staff Portal</span>
+                        <span class="ml-2 text-lg">CMS Portal</span>
                     </a>
                 </div>
 
@@ -50,21 +50,27 @@
                     <a href="{% url 'staff_portal:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
                         Dashboard
                     </a>
+                    {% if can_manage_services or request.user.is_superuser %}
                     <a href="{% url 'staff_portal:service_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
                         Services
                     </a>
+                    {% endif %}
+                    {% if can_manage_news or request.user.is_superuser %}
                     <a href="{% url 'staff_portal:news_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
                         News
                     </a>
+                    {% endif %}
+                    {% if request.user.is_superuser %}
                     <a href="/admin/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
-                        Django Admin
+                        Admin Panel
                     </a>
+                    {% endif %}
                     <a href="/" target="_blank" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
                         View Site
                     </a>
                     <div class="border-l border-gray-600 h-6"></div>
                     <span class="text-sm">{{ request.user.username }}</span>
-                    <a href="/admin/logout/" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium transition">
+                    <a href="{% url 'staff_portal:logout' %}" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium transition">
                         Logout
                     </a>
                 </div>
@@ -102,7 +108,7 @@
     <footer class="bg-white mt-12 border-t border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <p class="text-center text-sm text-gray-500">
-                AMMA Staff Portal &copy; 2025 - Municipal Content Management System
+                AMMA CMS Portal &copy; 2025 - Municipal Content Management System
             </p>
         </div>
     </footer>

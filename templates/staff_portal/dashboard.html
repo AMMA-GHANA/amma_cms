@@ -5,7 +5,7 @@
 {% block content %}
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-    <p class="mt-2 text-gray-600">Welcome to the AMMA Staff Portal</p>
+    <p class="mt-2 text-gray-600">Welcome to the AMMA CMS Portal</p>
 </div>
 
 <!-- Stats Grid -->
@@ -108,6 +108,7 @@
     </div>
     <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% if can_manage_services %}
             <a href="{% url 'staff_portal:service_create' %}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-amma-gold hover:bg-amma-gold/5 transition group">
                 <div class="bg-amma-gold rounded-lg p-3 group-hover:scale-110 transition">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +132,9 @@
                     <p class="text-sm text-gray-500">View and edit all services</p>
                 </div>
             </a>
+            {% endif %}
 
+            {% if can_manage_news %}
             <a href="{% url 'staff_portal:news_create' %}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition group">
                 <div class="bg-purple-500 rounded-lg p-3 group-hover:scale-110 transition">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +158,9 @@
                     <p class="text-sm text-gray-500">View and edit all articles</p>
                 </div>
             </a>
+            {% endif %}
 
+            {% if request.user.is_superuser %}
             <a href="/admin/" class="flex items-center p-4 border-2 border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition group">
                 <div class="bg-green-500 rounded-lg p-3 group-hover:scale-110 transition">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,10 +169,11 @@
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <p class="font-semibold text-gray-900">Django Admin</p>
-                    <p class="text-sm text-gray-500">Access full admin panel</p>
+                    <p class="font-semibold text-gray-900">Admin Panel</p>
+                    <p class="text-sm text-gray-500">Manage portal users & settings</p>
                 </div>
             </a>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -181,7 +187,7 @@
             </svg>
         </div>
         <div class="ml-3">
-            <h3 class="text-sm font-medium text-blue-900">Getting Started with the Staff Portal</h3>
+            <h3 class="text-sm font-medium text-blue-900">Getting Started with the CMS Portal</h3>
             <div class="mt-2 text-sm text-blue-700">
                 <p>Use this portal to create and manage service pages with rich content blocks including:</p>
                 <ul class="list-disc list-inside mt-2 space-y-1">
