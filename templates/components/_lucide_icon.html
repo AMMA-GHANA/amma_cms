@@ -1,0 +1,20 @@
+{% comment %}
+Lucide Icon Component
+Parameters:
+  - icon: Icon name from lucide.dev (required, e.g., 'file-text', 'users', 'home')
+  - size: Icon size in pixels (optional, default: 24)
+  - class: Additional CSS classes (optional)
+  - color: Stroke color (optional, default: currentColor)
+  - stroke_width: Stroke width (optional, default: 2)
+
+Usage:
+  {% include 'components/_lucide_icon.html' with icon='file-text' size=32 %}
+  {% include 'components/_lucide_icon.html' with icon=service.icon class='text-white' %}
+{% endcomment %}
+
+<i data-lucide="{{ icon|default:'file-text' }}"
+   {% if size %}width="{{ size }}" height="{{ size }}"{% endif %}
+   {% if class %}class="{{ class }}"{% endif %}
+   {% if color %}color="{{ color }}"{% endif %}
+   {% if stroke_width %}stroke-width="{{ stroke_width }}"{% endif %}
+></i>

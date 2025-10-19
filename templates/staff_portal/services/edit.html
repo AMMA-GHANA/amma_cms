@@ -49,17 +49,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-                        <select x-model="service.icon" @change="updatePreview"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent">
-                            <option value="file-text">Document</option>
-                            <option value="folder">Folder</option>
-                            <option value="briefcase">Briefcase</option>
-                            <option value="users">Users</option>
-                            <option value="home">Home</option>
-                            <option value="building">Building</option>
-                            <option value="truck">Truck</option>
-                            <option value="clipboard">Clipboard</option>
-                        </select>
+                        <input type="text" x-model="service.icon" @input="updatePreview"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                               placeholder="e.g., file-text, users, building">
+                        <p class="mt-1 text-xs text-gray-500">
+                            Enter any <a href="https://lucide.dev/icons/" target="_blank" class="text-amma-gold hover:underline">Lucide icon</a> name. Popular: file-text, folder, briefcase, users, home, building, truck, clipboard, calendar, settings, shield
+                        </p>
                     </div>
 
                     <div>
@@ -474,6 +469,80 @@
             </div>
         </div>
 
+        <!-- JSON Editor Section -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        <h2 class="text-xl font-semibold text-gray-900">JSON Editor</h2>
+                        <span class="text-xs text-gray-500">(Advanced)</span>
+                    </div>
+                    <button @click="toggleJsonEditor" type="button"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                        <span x-text="jsonEditorVisible ? 'Hide' : 'Show'"></span>
+                        <svg x-show="!jsonEditorVisible" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        <svg x-show="jsonEditorVisible" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="jsonEditorVisible" x-transition class="p-6 space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-medium text-blue-900">Advanced JSON Editing</h3>
+                            <p class="text-sm text-blue-700 mt-1">Edit the entire service configuration as JSON. Changes will sync with the visual editor above.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JSON Editor -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">Service Configuration JSON</label>
+                        <div class="flex space-x-2">
+                            <button @click="formatJson" type="button"
+                                    class="text-xs px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+                                Format JSON
+                            </button>
+                            <button @click="importFromJson" type="button"
+                                    class="text-xs px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                                Apply JSON Changes
+                            </button>
+                        </div>
+                    </div>
+                    <textarea x-model="jsonContent" @input="jsonModified = true"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-amma-gold focus:border-transparent"
+                              rows="20"
+                              style="font-family: 'Courier New', monospace; tab-size: 2;"
+                              placeholder='{"service": {...}, "blocks": [...]}'
+                              spellcheck="false"></textarea>
+
+                    <div x-show="jsonError" class="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-red-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-red-900">JSON Error</h4>
+                                <p class="text-sm text-red-700 mt-1" x-text="jsonError"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Save Button -->
         <div class="flex justify-end space-x-3">
             <a href="{% url 'staff_portal:service_list' %}"
@@ -525,7 +594,16 @@ function serviceEditor() {
         previewTimeout: null,
         sortable: null,
 
+        // JSON Editor state
+        jsonEditorVisible: false,
+        jsonContent: '',
+        jsonError: '',
+        jsonModified: false,
+
         init() {
+            // Clear blocks array to prevent duplication
+            this.blocks = [];
+
             // Load existing blocks if editing
             {% if content_blocks_json %}
             const blocksData = {{ content_blocks_json|tojson }};
@@ -569,6 +647,9 @@ function serviceEditor() {
 
             // Initial preview
             this.updatePreview();
+
+            // Initialize JSON content
+            this.exportToJson();
         },
 
         addBlock(type) {
@@ -768,6 +849,11 @@ function serviceEditor() {
             clearTimeout(this.previewTimeout);
             this.previewTimeout = setTimeout(() => {
                 this.fetchPreview();
+
+                // Auto-sync JSON if user hasn't manually modified it
+                if (!this.jsonModified) {
+                    this.exportToJson();
+                }
             }, 500);
         },
 
@@ -936,6 +1022,121 @@ function serviceEditor() {
 
             document.body.appendChild(form);
             form.submit();
+        },
+
+        // JSON Editor Functions
+
+        toggleJsonEditor() {
+            this.jsonEditorVisible = !this.jsonEditorVisible;
+            if (this.jsonEditorVisible && !this.jsonModified) {
+                // Refresh JSON when opening if not modified by user
+                this.exportToJson();
+            }
+        },
+
+        exportToJson() {
+            // Convert current service + blocks to JSON
+            const data = {
+                service: {
+                    name: this.service.name,
+                    description: this.service.description,
+                    icon: this.service.icon,
+                    has_detail_page: this.service.has_detail_page,
+                    is_active: this.service.is_active,
+                    link_url: this.service.link_url,
+                    order: this.service.order
+                },
+                blocks: this.blocks.map((b, i) => ({
+                    block_type: b.block_type,
+                    title: b.title,
+                    content: b.content,
+                    data: b.data,
+                    order: i
+                }))
+            };
+
+            this.jsonContent = JSON.stringify(data, null, 2);
+            this.jsonError = '';
+            this.jsonModified = false;
+        },
+
+        formatJson() {
+            try {
+                const parsed = JSON.parse(this.jsonContent);
+                this.jsonContent = JSON.stringify(parsed, null, 2);
+                this.jsonError = '';
+            } catch (e) {
+                this.jsonError = 'Invalid JSON: ' + e.message;
+            }
+        },
+
+        importFromJson() {
+            try {
+                const data = JSON.parse(this.jsonContent);
+
+                // Validate structure
+                if (!data.service || !data.blocks) {
+                    throw new Error('JSON must have "service" and "blocks" properties');
+                }
+
+                // Update service data
+                if (data.service.name !== undefined) this.service.name = data.service.name;
+                if (data.service.description !== undefined) this.service.description = data.service.description;
+                if (data.service.icon !== undefined) this.service.icon = data.service.icon;
+                if (data.service.has_detail_page !== undefined) this.service.has_detail_page = data.service.has_detail_page;
+                if (data.service.is_active !== undefined) this.service.is_active = data.service.is_active;
+                if (data.service.link_url !== undefined) this.service.link_url = data.service.link_url;
+                if (data.service.order !== undefined) this.service.order = data.service.order;
+
+                // Clear existing blocks
+                this.blocks = [];
+
+                // Import blocks
+                data.blocks.forEach(blockData => {
+                    const newBlock = {
+                        id: this.nextBlockId++,
+                        block_type: blockData.block_type || 'text',
+                        title: blockData.title || '',
+                        content: blockData.content || '',
+                        data: blockData.data || {},
+                        collapsed: false
+                    };
+
+                    // Ensure color exists
+                    if (!newBlock.data.color) {
+                        newBlock.data.color = '#1a1a1a';
+                    }
+
+                    // Handle list blocks specially
+                    if (newBlock.block_type === 'list' && newBlock.data.items) {
+                        newBlock.data.items_text = newBlock.data.items.join('\n');
+                    }
+
+                    // Ensure proper data structures
+                    if (newBlock.block_type === 'service_grid' && !newBlock.data.items) {
+                        newBlock.data.items = [];
+                    }
+                    if (newBlock.block_type === 'steps' && !newBlock.data.steps) {
+                        newBlock.data.steps = [];
+                    }
+                    if (newBlock.block_type === 'table') {
+                        if (!newBlock.data.headers) newBlock.data.headers = [];
+                        if (!newBlock.data.rows) newBlock.data.rows = [];
+                    }
+
+                    this.blocks.push(newBlock);
+                });
+
+                // Clear error and update preview
+                this.jsonError = '';
+                this.jsonModified = false;
+                this.updatePreview();
+
+                alert('JSON imported successfully! The visual editor has been updated.');
+
+            } catch (e) {
+                this.jsonError = 'Import failed: ' + e.message;
+            }
         }
     }
 }

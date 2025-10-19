@@ -171,6 +171,20 @@
         });
     </script>
 
+    <!-- Lucide Icons -->
+    <!-- Using CDN for development. To switch to self-hosted:
+         1. Run: npm install lucide@0.546.0
+         2. Copy: node_modules/lucide/dist/umd/lucide.min.js to static/js/
+         3. Replace CDN URL below with: <script src="{% static 'js/lucide.min.js' %}"></script>
+    -->
+    <script src="https://unpkg.com/lucide@0.546.0/dist/umd/lucide.js"></script>
+    <script>
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

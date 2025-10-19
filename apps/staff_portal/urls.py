@@ -9,6 +9,9 @@ urlpatterns = [
     # Dashboard
     path('', views.dashboard, name='dashboard'),
 
+    # Authentication
+    path('logout/', views.portal_logout, name='logout'),
+
     # Services Management
     path('services/', views.service_list, name='service_list'),
     path('services/create/', views.service_create, name='service_create'),
