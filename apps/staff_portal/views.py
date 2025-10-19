@@ -2,6 +2,7 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_http_methods
@@ -11,21 +12,37 @@ import json
 from apps.services.models import Service, ServiceContentBlock
 from apps.news.models import NewsArticle, NewsCategory
 from apps.staff.models import StaffMember
-from .decorators import staff_required
+from .decorators import (
+    staff_required,
+    portal_user_required,
+    news_permission_required,
+    services_permission_required
+)
+from .permissions import (
+    user_can_manage_news,
+    user_can_manage_services,
+    user_can_manage_projects
+)
 from .block_templates import get_all_templates, get_template
 from .forms import NewsArticleForm
 
 
-@staff_required
+@portal_user_required
 def dashboard(request):
-    """Staff portal dashboard"""
-    services_count = Service.objects.count()
-    active_services_count = Service.objects.filter(is_active=True).count()
+    """AMMA CMS Portal dashboard"""
+    # Check user permissions
+    can_manage_news = user_can_manage_news(request.user)
+    can_manage_services = user_can_manage_services(request.user)
+    can_manage_projects = user_can_manage_projects(request.user)
+
+    # Get statistics based on permissions
+    services_count = Service.objects.count() if can_manage_services else 0
+    active_services_count = Service.objects.filter(is_active=True).count() if can_manage_services else 0
 
     # News statistics
-    news_count = NewsArticle.objects.count()
-    published_news_count = NewsArticle.objects.filter(status='published').count()
-    draft_news_count = NewsArticle.objects.filter(status='draft').count()
+    news_count = NewsArticle.objects.count() if can_manage_news else 0
+    published_news_count = NewsArticle.objects.filter(status='published').count() if can_manage_news else 0
+    draft_news_count = NewsArticle.objects.filter(status='draft').count() if can_manage_news else 0
 
     context = {
         'services_count': services_count,
@@ -33,11 +50,15 @@ def dashboard(request):
         'news_count': news_count,
         'published_news_count': published_news_count,
         'draft_news_count': draft_news_count,
+        # Permissions for template
+        'can_manage_news': can_manage_news,
+        'can_manage_services': can_manage_services,
+        'can_manage_projects': can_manage_projects,
     }
     return render(request, 'staff_portal/dashboard.html', context)
 
 
-@staff_required
+@services_permission_required
 def service_list(request):
     """List all services for management"""
     services = Service.objects.all().order_by('order', 'name')
@@ -54,7 +75,7 @@ def service_list(request):
     return render(request, 'staff_portal/services/list.html', context)
 
 
-@staff_required
+@services_permission_required
 @require_http_methods(["GET", "POST"])
 def service_create(request):
     """Create a new service"""
@@ -73,7 +94,7 @@ def service_create(request):
     return render(request, 'staff_portal/services/edit.html', context)
 
 
-@staff_required
+@services_permission_required
 @require_http_methods(["GET", "POST"])
 def service_edit(request, pk):
     """Edit an existing service"""
@@ -164,7 +185,7 @@ def _save_service(request, service):
         return redirect(request.path)
 
 
-@staff_required
+@services_permission_required
 @require_POST
 def service_delete(request, pk):
     """Delete a service"""
@@ -175,7 +196,7 @@ def service_delete(request, pk):
     return redirect('staff_portal:service_list')
 
 
-@staff_required
+@services_permission_required
 @require_POST
 def service_preview_api(request):
     """API endpoint for live preview"""
@@ -214,7 +235,7 @@ def service_preview_api(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-@staff_required
+@services_permission_required
 @require_POST
 def service_blocks_reorder_api(request, pk):
     """API endpoint for reordering blocks"""
@@ -234,7 +255,7 @@ def service_blocks_reorder_api(request, pk):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-@staff_required
+@services_permission_required
 def get_template_api(request, template_key):
     """API endpoint to get template data by key"""
     template = get_template(template_key)
@@ -253,7 +274,7 @@ def get_template_api(request, template_key):
 # NEWS MANAGEMENT VIEWS
 # ============================================================================
 
-@staff_required
+@news_permission_required
 def news_list(request):
     """List all news articles for management"""
     articles = NewsArticle.objects.all().select_related('category', 'author')
@@ -289,7 +310,7 @@ def news_list(request):
     return render(request, 'staff_portal/news/list.html', context)
 
 
-@staff_required
+@news_permission_required
 @require_http_methods(["GET", "POST"])
 def news_create(request):
     """Create a new news article"""
@@ -310,7 +331,7 @@ def news_create(request):
     return render(request, 'staff_portal/news/edit.html', context)
 
 
-@staff_required
+@news_permission_required
 @require_http_methods(["GET", "POST"])
 def news_edit(request, pk):
     """Edit an existing news article"""
@@ -333,7 +354,7 @@ def news_edit(request, pk):
     return render(request, 'staff_portal/news/edit.html', context)
 
 
-@staff_required
+@news_permission_required
 @require_POST
 def news_delete(request, pk):
     """Delete a news article"""
@@ -344,7 +365,7 @@ def news_delete(request, pk):
     return redirect('staff_portal:news_list')
 
 
-@staff_required
+@news_permission_required
 @require_POST
 def news_category_create_api(request):
     """API endpoint to create a new category"""
@@ -386,3 +407,17 @@ def news_category_create_api(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+# ============================================================================
+# AUTHENTICATION VIEWS
+# ============================================================================
+
+def portal_logout(request):
+    """
+    Logout view for AMMA CMS Portal users.
+    Logs out the user and redirects to the login page with a success message.
+    """
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('/admin/login/')
