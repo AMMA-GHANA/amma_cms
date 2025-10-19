@@ -99,6 +99,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Total Projects -->
+    {% if can_manage_projects %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Projects</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ projects_count }}</p>
+            </div>
+            <div class="bg-orange-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ongoing Projects -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Ongoing Projects</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">{{ ongoing_projects_count }}</p>
+            </div>
+            <div class="bg-orange-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Projects -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Completed Projects</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ completed_projects_count }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Quick Actions -->
@@ -156,6 +203,32 @@
                 <div class="ml-4">
                     <p class="font-semibold text-gray-900">Manage News</p>
                     <p class="text-sm text-gray-500">View and edit all articles</p>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if can_manage_projects %}
+            <a href="{% url 'staff_portal:project_create' %}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition group">
+                <div class="bg-orange-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Create New Project</p>
+                    <p class="text-sm text-gray-500">Add a development project</p>
+                </div>
+            </a>
+
+            <a href="{% url 'staff_portal:project_list' %}" class="flex items-center p-4 border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition group">
+                <div class="bg-orange-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Manage Projects</p>
+                    <p class="text-sm text-gray-500">View and edit all projects</p>
                 </div>
             </a>
             {% endif %}

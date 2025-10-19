@@ -11,12 +11,14 @@ import json
 
 from apps.services.models import Service, ServiceContentBlock
 from apps.news.models import NewsArticle, NewsCategory
+from apps.projects.models import Project, ProjectCategory, ProjectImage
 from apps.staff.models import StaffMember
 from .decorators import (
     staff_required,
     portal_user_required,
     news_permission_required,
-    services_permission_required
+    services_permission_required,
+    projects_permission_required
 )
 from .permissions import (
     user_can_manage_news,
@@ -24,7 +26,7 @@ from .permissions import (
     user_can_manage_projects
 )
 from .block_templates import get_all_templates, get_template
-from .forms import NewsArticleForm
+from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet
 
 
 @portal_user_required
@@ -44,12 +46,20 @@ def dashboard(request):
     published_news_count = NewsArticle.objects.filter(status='published').count() if can_manage_news else 0
     draft_news_count = NewsArticle.objects.filter(status='draft').count() if can_manage_news else 0
 
+    # Project statistics
+    projects_count = Project.objects.count() if can_manage_projects else 0
+    ongoing_projects_count = Project.objects.filter(status='ongoing').count() if can_manage_projects else 0
+    completed_projects_count = Project.objects.filter(status='completed').count() if can_manage_projects else 0
+
     context = {
         'services_count': services_count,
         'active_services_count': active_services_count,
         'news_count': news_count,
         'published_news_count': published_news_count,
         'draft_news_count': draft_news_count,
+        'projects_count': projects_count,
+        'ongoing_projects_count': ongoing_projects_count,
+        'completed_projects_count': completed_projects_count,
         # Permissions for template
         'can_manage_news': can_manage_news,
         'can_manage_services': can_manage_services,
@@ -390,6 +400,162 @@ def news_category_create_api(request):
         category = NewsCategory.objects.create(
             name=name,
             description=description,
+            color=color
+        )
+
+        return JsonResponse({
+            'success': True,
+            'category': {
+                'id': category.id,
+                'name': category.name,
+                'slug': category.slug,
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================================================
+# PROJECT MANAGEMENT VIEWS
+# ============================================================================
+
+@projects_permission_required
+def project_list(request):
+    """List all projects for management"""
+    projects = Project.objects.all().select_related('category')
+
+    # Search functionality
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        projects = projects.filter(title__icontains=search_query)
+
+    # Filter by status
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter:
+        projects = projects.filter(status=status_filter)
+
+    # Filter by category
+    category_filter = request.GET.get('category', '').strip()
+    if category_filter:
+        projects = projects.filter(category_id=category_filter)
+
+    # Order by featured, then order field
+    projects = projects.order_by('-is_featured', 'order', '-start_date')
+
+    # Get all categories for filter dropdown
+    categories = ProjectCategory.objects.all().order_by('name')
+
+    context = {
+        'projects': projects,
+        'categories': categories,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'category_filter': category_filter,
+    }
+    return render(request, 'staff_portal/projects/list.html', context)
+
+
+@projects_permission_required
+@require_http_methods(["GET", "POST"])
+def project_create(request):
+    """Create a new project"""
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        formset = ProjectImageFormSet(request.POST, request.FILES)
+
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                project = form.save()
+                formset.instance = project
+                formset.save()
+
+            messages.success(request, f'Project "{project.title}" created successfully.')
+            return redirect('staff_portal:project_list')
+    else:
+        form = ProjectForm()
+        formset = ProjectImageFormSet()
+
+    context = {
+        'form': form,
+        'formset': formset,
+        'project': None,
+        'is_create': True,
+    }
+    return render(request, 'staff_portal/projects/edit.html', context)
+
+
+@projects_permission_required
+@require_http_methods(["GET", "POST"])
+def project_edit(request, pk):
+    """Edit an existing project"""
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, instance=project)
+        formset = ProjectImageFormSet(request.POST, request.FILES, instance=project)
+
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                project = form.save()
+                formset.save()
+
+            messages.success(request, f'Project "{project.title}" updated successfully.')
+            return redirect('staff_portal:project_list')
+    else:
+        form = ProjectForm(instance=project)
+        formset = ProjectImageFormSet(instance=project)
+
+    context = {
+        'form': form,
+        'formset': formset,
+        'project': project,
+        'is_create': False,
+    }
+    return render(request, 'staff_portal/projects/edit.html', context)
+
+
+@projects_permission_required
+@require_POST
+def project_delete(request, pk):
+    """Delete a project"""
+    project = get_object_or_404(Project, pk=pk)
+    project_title = project.title
+    project.delete()
+    messages.success(request, f'Project "{project_title}" deleted successfully.')
+    return redirect('staff_portal:project_list')
+
+
+@projects_permission_required
+@require_POST
+def project_category_create_api(request):
+    """API endpoint to create a new project category"""
+    try:
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        icon = request.POST.get('icon', 'building').strip()
+        color = request.POST.get('color', '#d4af37').strip()
+
+        if not name:
+            return JsonResponse({
+                'success': False,
+                'error': 'Category name is required'
+            }, status=400)
+
+        # Check if category already exists
+        if ProjectCategory.objects.filter(name=name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A category with this name already exists'
+            }, status=400)
+
+        category = ProjectCategory.objects.create(
+            name=name,
+            description=description,
+            icon=icon,
             color=color
         )
 

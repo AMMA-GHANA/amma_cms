@@ -31,4 +31,13 @@ urlpatterns = [
 
     # News API endpoints
     path('api/news/categories/create/', views.news_category_create_api, name='news_category_create_api'),
+
+    # Projects Management
+    path('projects/', views.project_list, name='project_list'),
+    path('projects/create/', views.project_create, name='project_create'),
+    path('projects/<int:pk>/edit/', views.project_edit, name='project_edit'),
+    path('projects/<int:pk>/delete/', views.project_delete, name='project_delete'),
+
+    # Projects API endpoints
+    path('api/projects/categories/create/', views.project_category_create_api, name='project_category_create_api'),
 ]
