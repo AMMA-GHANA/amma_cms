@@ -4,6 +4,7 @@ from apps.services.models import Service
 from apps.news.models import NewsArticle
 from apps.projects.models import Project
 from apps.staff.models import StaffMember
+from apps.documents.models import Document
 
 
 def homepage(request):
@@ -15,6 +16,7 @@ def homepage(request):
     - Statistics counters
     - About section
     - Featured services
+    - Featured documents
     - Featured news articles
     - Featured projects
     - Leadership team
@@ -24,6 +26,10 @@ def homepage(request):
         'statistics': Statistic.objects.filter(is_active=True).order_by('order')[:4],
         'about_section': AboutSection.load(),
         'services': Service.objects.filter(is_active=True).order_by('order')[:3],
+        'featured_documents': Document.objects.filter(
+            is_public=True,
+            is_featured=True
+        ).select_related('category').order_by('-uploaded_date')[:6],
         'featured_news': NewsArticle.objects.filter(
             status='published',
             is_featured=True

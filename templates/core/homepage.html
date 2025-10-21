@@ -165,6 +165,67 @@
 </section>
 {% endif %}
 
+<!-- Documents Section -->
+{% if featured_documents %}
+<section id="documents" class="py-20 bg-amma-white">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-secondary font-bold text-amma-black mb-4">Documents & Resources</h2>
+                <p class="text-xl text-amma-gray">Access important documents, policies, forms, and reports.</p>
+            </div>
+            <a href="/documents/" class="hidden md:inline-flex items-center text-amma-gold hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                View All Documents
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for document in featured_documents %}
+                <a href="{{ document.file.url }}" target="_blank" class="block bg-white rounded-amma p-8 shadow-amma-light hover:shadow-amma-medium transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="flex items-start mb-6">
+                        <div class="w-16 h-16 bg-amma-gold bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-8 h-8 text-amma-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            {% if document.category %}
+                                <span class="inline-block bg-amma-gold-light text-amma-gold-dark text-xs font-semibold px-2 py-1 rounded mb-2">{{ document.category.name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-secondary font-semibold text-amma-black mb-3 line-clamp-2">{{ document.title }}</h3>
+                    {% if document.description %}
+                        <p class="text-amma-gray leading-relaxed mb-4 line-clamp-2">{{ document.description }}</p>
+                    {% endif %}
+                    <div class="flex items-center justify-between text-sm text-amma-gray mb-4">
+                        {% if document.published_date %}
+                            <span>{{ document.published_date|date:"M d, Y" }}</span>
+                        {% endif %}
+                        {% if document.file_type %}
+                            <span class="uppercase font-semibold">{{ document.file_type }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="inline-flex items-center text-amma-gold group-hover:text-amma-gold-dark font-semibold transition-colors duration-200">
+                        Download
+                        <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-12 md:hidden">
+            {% include 'components/_button.html' with text="View All Documents" link="/documents/" variant="primary" size="lg" icon=True %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- Featured News Section -->
 {% if featured_news %}
 <section id="news" class="py-20 bg-amma-white">
