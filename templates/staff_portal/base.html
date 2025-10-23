@@ -65,6 +65,11 @@
                         Projects
                     </a>
                     {% endif %}
+                    {% if can_manage_documents or request.user.is_superuser %}
+                    <a href="{% url 'staff_portal:document_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
+                        Documents
+                    </a>
+                    {% endif %}
                     {% if request.user.is_superuser %}
                     <a href="/admin/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-amma-gray transition">
                         Admin Panel

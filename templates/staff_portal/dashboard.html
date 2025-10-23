@@ -150,6 +150,54 @@
         </div>
     </div>
     {% endif %}
+
+    {% if can_manage_documents %}
+    <!-- Total Documents -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Documents</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ documents_count }}</p>
+            </div>
+            <div class="bg-indigo-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public Documents -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Public Documents</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ public_documents_count }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Documents -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Featured Documents</p>
+                <p class="text-3xl font-bold text-amma-gold mt-2">{{ featured_documents_count }}</p>
+            </div>
+            <div class="bg-amma-gold-light rounded-full p-3">
+                <svg class="w-8 h-8 text-amma-gold" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Quick Actions -->
@@ -233,6 +281,32 @@
                 <div class="ml-4">
                     <p class="font-semibold text-gray-900">Manage Projects</p>
                     <p class="text-sm text-gray-500">View and edit all projects</p>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if can_manage_documents %}
+            <a href="{% url 'staff_portal:document_create' %}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition group">
+                <div class="bg-indigo-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Upload Document</p>
+                    <p class="text-sm text-gray-500">Add a new file or resource</p>
+                </div>
+            </a>
+
+            <a href="{% url 'staff_portal:document_list' %}" class="flex items-center p-4 border-2 border-gray-300 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition group">
+                <div class="bg-indigo-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Manage Documents</p>
+                    <p class="text-sm text-gray-500">View and edit all documents</p>
                 </div>
             </a>
             {% endif %}

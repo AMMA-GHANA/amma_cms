@@ -40,4 +40,13 @@ urlpatterns = [
 
     # Projects API endpoints
     path('api/projects/categories/create/', views.project_category_create_api, name='project_category_create_api'),
+
+    # Documents Management
+    path('documents/', views.document_list, name='document_list'),
+    path('documents/create/', views.document_create, name='document_create'),
+    path('documents/<int:pk>/edit/', views.document_edit, name='document_edit'),
+    path('documents/<int:pk>/delete/', views.document_delete, name='document_delete'),
+
+    # Documents API endpoints
+    path('api/documents/categories/create/', views.document_category_create_api, name='document_category_create_api'),
 ]

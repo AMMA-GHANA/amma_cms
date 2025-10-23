@@ -12,21 +12,24 @@ import json
 from apps.services.models import Service, ServiceContentBlock
 from apps.news.models import NewsArticle, NewsCategory
 from apps.projects.models import Project, ProjectCategory, ProjectImage
+from apps.documents.models import Document, DocumentCategory
 from apps.staff.models import StaffMember
 from .decorators import (
     staff_required,
     portal_user_required,
     news_permission_required,
     services_permission_required,
-    projects_permission_required
+    projects_permission_required,
+    documents_permission_required
 )
 from .permissions import (
     user_can_manage_news,
     user_can_manage_services,
-    user_can_manage_projects
+    user_can_manage_projects,
+    user_can_manage_documents
 )
 from .block_templates import get_all_templates, get_template
-from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet
+from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet, DocumentForm
 
 
 @portal_user_required
@@ -36,6 +39,7 @@ def dashboard(request):
     can_manage_news = user_can_manage_news(request.user)
     can_manage_services = user_can_manage_services(request.user)
     can_manage_projects = user_can_manage_projects(request.user)
+    can_manage_documents = user_can_manage_documents(request.user)
 
     # Get statistics based on permissions
     services_count = Service.objects.count() if can_manage_services else 0
@@ -51,6 +55,11 @@ def dashboard(request):
     ongoing_projects_count = Project.objects.filter(status='ongoing').count() if can_manage_projects else 0
     completed_projects_count = Project.objects.filter(status='completed').count() if can_manage_projects else 0
 
+    # Document statistics
+    documents_count = Document.objects.count() if can_manage_documents else 0
+    public_documents_count = Document.objects.filter(is_public=True).count() if can_manage_documents else 0
+    featured_documents_count = Document.objects.filter(is_featured=True).count() if can_manage_documents else 0
+
     context = {
         'services_count': services_count,
         'active_services_count': active_services_count,
@@ -60,10 +69,14 @@ def dashboard(request):
         'projects_count': projects_count,
         'ongoing_projects_count': ongoing_projects_count,
         'completed_projects_count': completed_projects_count,
+        'documents_count': documents_count,
+        'public_documents_count': public_documents_count,
+        'featured_documents_count': featured_documents_count,
         # Permissions for template
         'can_manage_news': can_manage_news,
         'can_manage_services': can_manage_services,
         'can_manage_projects': can_manage_projects,
+        'can_manage_documents': can_manage_documents,
     }
     return render(request, 'staff_portal/dashboard.html', context)
 
@@ -557,6 +570,158 @@ def project_category_create_api(request):
             description=description,
             icon=icon,
             color=color
+        )
+
+        return JsonResponse({
+            'success': True,
+            'category': {
+                'id': category.id,
+                'name': category.name,
+                'slug': category.slug,
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================================================
+# DOCUMENT MANAGEMENT VIEWS
+# ============================================================================
+
+@documents_permission_required
+def document_list(request):
+    """List all documents for management"""
+    documents = Document.objects.all().select_related('category')
+
+    # Search functionality
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        documents = documents.filter(title__icontains=search_query)
+
+    # Filter by category
+    category_filter = request.GET.get('category', '').strip()
+    if category_filter:
+        documents = documents.filter(category_id=category_filter)
+
+    # Filter by year
+    year_filter = request.GET.get('year', '').strip()
+    if year_filter:
+        documents = documents.filter(document_year=year_filter)
+
+    # Filter by public status
+    public_filter = request.GET.get('public', '').strip()
+    if public_filter == 'public':
+        documents = documents.filter(is_public=True)
+    elif public_filter == 'private':
+        documents = documents.filter(is_public=False)
+
+    # Order by most recent
+    documents = documents.order_by('-uploaded_date')
+
+    # Get all categories for filter dropdown
+    categories = DocumentCategory.objects.all().order_by('name')
+
+    # Get available years for filter
+    years = Document.objects.values_list('document_year', flat=True).distinct().order_by('-document_year')
+    years = [year for year in years if year is not None]
+
+    context = {
+        'documents': documents,
+        'categories': categories,
+        'years': years,
+        'search_query': search_query,
+        'category_filter': category_filter,
+        'year_filter': year_filter,
+        'public_filter': public_filter,
+    }
+    return render(request, 'staff_portal/documents/list.html', context)
+
+
+@documents_permission_required
+@require_http_methods(["GET", "POST"])
+def document_create(request):
+    """Create a new document"""
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save()
+            messages.success(request, f'Document "{document.title}" created successfully.')
+            return redirect('staff_portal:document_list')
+    else:
+        form = DocumentForm()
+
+    context = {
+        'form': form,
+        'document': None,
+        'is_create': True,
+    }
+    return render(request, 'staff_portal/documents/edit.html', context)
+
+
+@documents_permission_required
+@require_http_methods(["GET", "POST"])
+def document_edit(request, pk):
+    """Edit an existing document"""
+    document = get_object_or_404(Document, pk=pk)
+
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES, instance=document)
+        if form.is_valid():
+            document = form.save()
+            messages.success(request, f'Document "{document.title}" updated successfully.')
+            return redirect('staff_portal:document_list')
+    else:
+        form = DocumentForm(instance=document)
+
+    context = {
+        'form': form,
+        'document': document,
+        'is_create': False,
+    }
+    return render(request, 'staff_portal/documents/edit.html', context)
+
+
+@documents_permission_required
+@require_POST
+def document_delete(request, pk):
+    """Delete a document"""
+    document = get_object_or_404(Document, pk=pk)
+    document_title = document.title
+    document.delete()
+    messages.success(request, f'Document "{document_title}" deleted successfully.')
+    return redirect('staff_portal:document_list')
+
+
+@documents_permission_required
+@require_POST
+def document_category_create_api(request):
+    """API endpoint to create a new document category"""
+    try:
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        icon = request.POST.get('icon', 'folder').strip()
+
+        if not name:
+            return JsonResponse({
+                'success': False,
+                'error': 'Category name is required'
+            }, status=400)
+
+        # Check if category already exists
+        if DocumentCategory.objects.filter(name=name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A category with this name already exists'
+            }, status=400)
+
+        category = DocumentCategory.objects.create(
+            name=name,
+            description=description,
+            icon=icon
         )
 
         return JsonResponse({

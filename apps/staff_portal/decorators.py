@@ -9,7 +9,8 @@ from functools import wraps
 from .permissions import (
     user_can_manage_news,
     user_can_manage_services,
-    user_can_manage_projects
+    user_can_manage_projects,
+    user_can_manage_documents
 )
 
 
@@ -78,4 +79,12 @@ def projects_permission_required(view_func):
     return permission_required_for_portal(
         user_can_manage_projects,
         'You do not have permission to manage projects.'
+    )(view_func)
+
+
+def documents_permission_required(view_func):
+    """Decorator that requires permission to manage documents"""
+    return permission_required_for_portal(
+        user_can_manage_documents,
+        'You do not have permission to manage documents.'
     )(view_func)

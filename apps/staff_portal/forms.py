@@ -5,6 +5,7 @@ from django.forms import inlineformset_factory
 from django_ckeditor_5.widgets import CKEditor5Widget
 from apps.news.models import NewsArticle, NewsCategory
 from apps.projects.models import Project, ProjectCategory, ProjectImage
+from apps.documents.models import Document, DocumentCategory
 
 
 class CKEditor5WidgetNoRequired(CKEditor5Widget):
@@ -251,3 +252,75 @@ ProjectImageFormSet = inlineformset_factory(
     min_num=0,
     validate_min=False
 )
+
+
+class DocumentForm(forms.ModelForm):
+    """Form for creating and editing documents"""
+
+    class Meta:
+        model = Document
+        fields = [
+            'title',
+            'slug',
+            'description',
+            'category',
+            'file',
+            'thumbnail',
+            'document_year',
+            'document_quarter',
+            'is_public',
+            'is_featured',
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'Enter document title'
+            }),
+            'slug': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'auto-generated-from-title'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'rows': 3,
+                'placeholder': 'Brief description of this document'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent'
+            }),
+            'file': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'accept': '.pdf,.doc,.docx,.xls,.xlsx'
+            }),
+            'thumbnail': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'accept': 'image/*'
+            }),
+            'document_year': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'e.g., 2025',
+                'min': '2000',
+                'max': '2100'
+            }),
+            'document_quarter': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent'
+            }),
+            'is_public': forms.CheckboxInput(attrs={
+                'class': 'rounded border-gray-300 text-amma-gold focus:ring-amma-gold'
+            }),
+            'is_featured': forms.CheckboxInput(attrs={
+                'class': 'rounded border-gray-300 text-amma-gold focus:ring-amma-gold'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make slug optional (will be auto-generated)
+        self.fields['slug'].required = False
+        # Make optional fields explicit
+        self.fields['thumbnail'].required = False
+        self.fields['document_year'].required = False
+        self.fields['document_quarter'].required = False
+        # File is not required for edit (only for create)
+        if self.instance and self.instance.pk:
+            self.fields['file'].required = False
