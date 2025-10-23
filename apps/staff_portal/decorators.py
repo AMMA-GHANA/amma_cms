@@ -10,7 +10,8 @@ from .permissions import (
     user_can_manage_news,
     user_can_manage_services,
     user_can_manage_projects,
-    user_can_manage_documents
+    user_can_manage_documents,
+    user_can_manage_staff
 )
 
 
@@ -87,4 +88,12 @@ def documents_permission_required(view_func):
     return permission_required_for_portal(
         user_can_manage_documents,
         'You do not have permission to manage documents.'
+    )(view_func)
+
+
+def staff_members_permission_required(view_func):
+    """Decorator that requires permission to manage staff members"""
+    return permission_required_for_portal(
+        user_can_manage_staff,
+        'You do not have permission to manage staff members.'
     )(view_func)

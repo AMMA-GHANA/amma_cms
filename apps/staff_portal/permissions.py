@@ -15,6 +15,7 @@ class PortalPermissions:
     CAN_MANAGE_SERVICES = 'can_manage_services'
     CAN_MANAGE_PROJECTS = 'can_manage_projects'
     CAN_MANAGE_DOCUMENTS = 'can_manage_documents'
+    CAN_MANAGE_STAFF = 'can_manage_staff'
 
     # Permission definitions
     PERMISSIONS = [
@@ -22,6 +23,7 @@ class PortalPermissions:
         (CAN_MANAGE_SERVICES, 'Can manage services'),
         (CAN_MANAGE_PROJECTS, 'Can manage projects'),
         (CAN_MANAGE_DOCUMENTS, 'Can manage documents'),
+        (CAN_MANAGE_STAFF, 'Can manage staff members'),
     ]
 
     @classmethod
@@ -68,3 +70,8 @@ def user_can_manage_projects(user):
 def user_can_manage_documents(user):
     """Check if user has permission to manage documents"""
     return user.is_superuser or user.has_perm(f'auth.{PortalPermissions.CAN_MANAGE_DOCUMENTS}')
+
+
+def user_can_manage_staff(user):
+    """Check if user has permission to manage staff members"""
+    return user.is_superuser or user.has_perm(f'auth.{PortalPermissions.CAN_MANAGE_STAFF}')

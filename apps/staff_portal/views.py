@@ -13,23 +13,25 @@ from apps.services.models import Service, ServiceContentBlock
 from apps.news.models import NewsArticle, NewsCategory
 from apps.projects.models import Project, ProjectCategory, ProjectImage
 from apps.documents.models import Document, DocumentCategory
-from apps.staff.models import StaffMember
+from apps.staff.models import StaffMember, Department
 from .decorators import (
     staff_required,
     portal_user_required,
     news_permission_required,
     services_permission_required,
     projects_permission_required,
-    documents_permission_required
+    documents_permission_required,
+    staff_members_permission_required
 )
 from .permissions import (
     user_can_manage_news,
     user_can_manage_services,
     user_can_manage_projects,
-    user_can_manage_documents
+    user_can_manage_documents,
+    user_can_manage_staff
 )
 from .block_templates import get_all_templates, get_template
-from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet, DocumentForm
+from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet, DocumentForm, StaffMemberForm
 
 
 @portal_user_required
@@ -40,6 +42,7 @@ def dashboard(request):
     can_manage_services = user_can_manage_services(request.user)
     can_manage_projects = user_can_manage_projects(request.user)
     can_manage_documents = user_can_manage_documents(request.user)
+    can_manage_staff = user_can_manage_staff(request.user)
 
     # Get statistics based on permissions
     services_count = Service.objects.count() if can_manage_services else 0
@@ -60,6 +63,11 @@ def dashboard(request):
     public_documents_count = Document.objects.filter(is_public=True).count() if can_manage_documents else 0
     featured_documents_count = Document.objects.filter(is_featured=True).count() if can_manage_documents else 0
 
+    # Staff member statistics
+    staff_count = StaffMember.objects.count() if can_manage_staff else 0
+    active_staff_count = StaffMember.objects.filter(is_active=True).count() if can_manage_staff else 0
+    leadership_count = StaffMember.objects.filter(position_type='leadership', is_active=True).count() if can_manage_staff else 0
+
     context = {
         'services_count': services_count,
         'active_services_count': active_services_count,
@@ -72,11 +80,15 @@ def dashboard(request):
         'documents_count': documents_count,
         'public_documents_count': public_documents_count,
         'featured_documents_count': featured_documents_count,
+        'staff_count': staff_count,
+        'active_staff_count': active_staff_count,
+        'leadership_count': leadership_count,
         # Permissions for template
         'can_manage_news': can_manage_news,
         'can_manage_services': can_manage_services,
         'can_manage_projects': can_manage_projects,
         'can_manage_documents': can_manage_documents,
+        'can_manage_staff': can_manage_staff,
     }
     return render(request, 'staff_portal/dashboard.html', context)
 
@@ -730,6 +742,151 @@ def document_category_create_api(request):
                 'id': category.id,
                 'name': category.name,
                 'slug': category.slug,
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================================================
+# STAFF MEMBER MANAGEMENT
+# ============================================================================
+
+@staff_members_permission_required
+def staff_member_list(request):
+    """List all staff members for management"""
+    staff_members = StaffMember.objects.select_related('department').all()
+
+    # Search functionality
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        staff_members = staff_members.filter(
+            full_name__icontains=search_query
+        ) | staff_members.filter(
+            position__icontains=search_query
+        )
+
+    # Department filter
+    department_filter = request.GET.get('department', '').strip()
+    if department_filter:
+        staff_members = staff_members.filter(department_id=department_filter)
+
+    # Position type filter
+    position_type_filter = request.GET.get('position_type', '').strip()
+    if position_type_filter and position_type_filter in ['leadership', 'management', 'staff']:
+        staff_members = staff_members.filter(position_type=position_type_filter)
+
+    # Active status filter
+    is_active_filter = request.GET.get('is_active', '').strip()
+    if is_active_filter == 'active':
+        staff_members = staff_members.filter(is_active=True)
+    elif is_active_filter == 'inactive':
+        staff_members = staff_members.filter(is_active=False)
+
+    # Get all departments for filter dropdown
+    departments = Department.objects.all().order_by('order', 'name')
+
+    context = {
+        'staff_members': staff_members,
+        'departments': departments,
+        'search_query': search_query,
+        'department_filter': department_filter,
+        'position_type_filter': position_type_filter,
+        'is_active_filter': is_active_filter,
+    }
+    return render(request, 'staff_portal/staff_members/list.html', context)
+
+
+@staff_members_permission_required
+@require_http_methods(['GET', 'POST'])
+def staff_member_create(request):
+    """Create a new staff member"""
+    if request.method == 'POST':
+        form = StaffMemberForm(request.POST, request.FILES)
+        if form.is_valid():
+            staff_member = form.save()
+            messages.success(request, f'Staff member "{staff_member.full_name}" created successfully.')
+            return redirect('staff_portal:staff_member_list')
+    else:
+        form = StaffMemberForm()
+
+    context = {
+        'form': form,
+        'is_create': True,
+    }
+    return render(request, 'staff_portal/staff_members/edit.html', context)
+
+
+@staff_members_permission_required
+@require_http_methods(['GET', 'POST'])
+def staff_member_edit(request, pk):
+    """Edit an existing staff member"""
+    staff_member = get_object_or_404(StaffMember, pk=pk)
+
+    if request.method == 'POST':
+        form = StaffMemberForm(request.POST, request.FILES, instance=staff_member)
+        if form.is_valid():
+            staff_member = form.save()
+            messages.success(request, f'Staff member "{staff_member.full_name}" updated successfully.')
+            return redirect('staff_portal:staff_member_list')
+    else:
+        form = StaffMemberForm(instance=staff_member)
+
+    context = {
+        'form': form,
+        'is_create': False,
+        'staff_member': staff_member,
+    }
+    return render(request, 'staff_portal/staff_members/edit.html', context)
+
+
+@staff_members_permission_required
+@require_POST
+def staff_member_delete(request, pk):
+    """Delete a staff member"""
+    staff_member = get_object_or_404(StaffMember, pk=pk)
+    staff_member_name = staff_member.full_name
+    staff_member.delete()
+    messages.success(request, f'Staff member "{staff_member_name}" deleted successfully.')
+    return redirect('staff_portal:staff_member_list')
+
+
+@staff_members_permission_required
+@require_POST
+def department_create_api(request):
+    """API endpoint to create a new department"""
+    try:
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        if not name:
+            return JsonResponse({
+                'success': False,
+                'error': 'Department name is required'
+            }, status=400)
+
+        # Check if department already exists
+        if Department.objects.filter(name=name).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'A department with this name already exists'
+            }, status=400)
+
+        department = Department.objects.create(
+            name=name,
+            description=description
+        )
+
+        return JsonResponse({
+            'success': True,
+            'department': {
+                'id': department.id,
+                'name': department.name,
+                'slug': department.slug,
             }
         })
 

@@ -198,6 +198,53 @@
         </div>
     </div>
     {% endif %}
+
+    {% if can_manage_staff %}
+    <!-- Total Staff Members -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Staff</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ staff_count }}</p>
+            </div>
+            <div class="bg-teal-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Staff Members -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Active Staff</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ active_staff_count }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leadership Count -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Leadership</p>
+                <p class="text-3xl font-bold text-purple-600 mt-2">{{ leadership_count }}</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Quick Actions -->
@@ -307,6 +354,32 @@
                 <div class="ml-4">
                     <p class="font-semibold text-gray-900">Manage Documents</p>
                     <p class="text-sm text-gray-500">View and edit all documents</p>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if can_manage_staff %}
+            <a href="{% url 'staff_portal:staff_member_create' %}" class="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition group">
+                <div class="bg-teal-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Add Staff Member</p>
+                    <p class="text-sm text-gray-500">Add new staff or leadership</p>
+                </div>
+            </a>
+
+            <a href="{% url 'staff_portal:staff_member_list' %}" class="flex items-center p-4 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition group">
+                <div class="bg-teal-500 rounded-lg p-3 group-hover:scale-110 transition">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-gray-900">Manage Staff</p>
+                    <p class="text-sm text-gray-500">View and edit all staff members</p>
                 </div>
             </a>
             {% endif %}

@@ -6,6 +6,7 @@ from django_ckeditor_5.widgets import CKEditor5Widget
 from apps.news.models import NewsArticle, NewsCategory
 from apps.projects.models import Project, ProjectCategory, ProjectImage
 from apps.documents.models import Document, DocumentCategory
+from apps.staff.models import StaffMember, Department
 
 
 class CKEditor5WidgetNoRequired(CKEditor5Widget):
@@ -324,3 +325,90 @@ class DocumentForm(forms.ModelForm):
         # File is not required for edit (only for create)
         if self.instance and self.instance.pk:
             self.fields['file'].required = False
+
+
+class StaffMemberForm(forms.ModelForm):
+    """Form for creating and editing staff members"""
+
+    class Meta:
+        model = StaffMember
+        fields = [
+            'full_name',
+            'position',
+            'department',
+            'position_type',
+            'bio',
+            'photo',
+            'email',
+            'phone',
+            'display_order',
+            'is_active',
+            'joined_date',
+            'linkedin_url',
+            'twitter_url',
+        ]
+        widgets = {
+            'bio': CKEditor5WidgetNoRequired(
+                attrs={'class': 'django_ckeditor_5'},
+                config_name='default'
+            ),
+            'full_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'Enter full name'
+            }),
+            'position': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'Job title/position'
+            }),
+            'department': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent'
+            }),
+            'position_type': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent'
+            }),
+            'photo': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'accept': 'image/*'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'email@example.com'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': '+233 XX XXX XXXX'
+            }),
+            'display_order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': '0'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'rounded border-gray-300 text-amma-gold focus:ring-amma-gold'
+            }),
+            'joined_date': forms.DateInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'type': 'date'
+            }),
+            'linkedin_url': forms.URLInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'https://linkedin.com/in/...'
+            }),
+            'twitter_url': forms.URLInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amma-gold focus:border-transparent',
+                'placeholder': 'https://twitter.com/...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make optional fields explicit
+        self.fields['department'].required = False
+        self.fields['bio'].required = False
+        self.fields['email'].required = False
+        self.fields['phone'].required = False
+        self.fields['joined_date'].required = False
+        self.fields['linkedin_url'].required = False
+        self.fields['twitter_url'].required = False
+        # Photo is not required for edit (only for create)
+        if self.instance and self.instance.pk:
+            self.fields['photo'].required = False

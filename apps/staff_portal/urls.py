@@ -49,4 +49,13 @@ urlpatterns = [
 
     # Documents API endpoints
     path('api/documents/categories/create/', views.document_category_create_api, name='document_category_create_api'),
+
+    # Staff Members Management
+    path('staff-members/', views.staff_member_list, name='staff_member_list'),
+    path('staff-members/create/', views.staff_member_create, name='staff_member_create'),
+    path('staff-members/<int:pk>/edit/', views.staff_member_edit, name='staff_member_edit'),
+    path('staff-members/<int:pk>/delete/', views.staff_member_delete, name='staff_member_delete'),
+
+    # Staff Members API endpoints
+    path('api/staff/departments/create/', views.department_create_api, name='department_create_api'),
 ]
