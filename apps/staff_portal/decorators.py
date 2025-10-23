@@ -22,8 +22,8 @@ def portal_user_required(view_func):
     Redirects to login if not authenticated.
     """
     @wraps(view_func)
-    @login_required(login_url='/admin/login/')
-    @user_passes_test(lambda u: u.is_staff, login_url='/admin/login/')
+    @login_required(login_url='/login/')
+    @user_passes_test(lambda u: u.is_staff, login_url='/login/')
     def wrapper(request, *args, **kwargs):
         return view_func(request, *args, **kwargs)
     return wrapper

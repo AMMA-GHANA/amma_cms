@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
 
     # Authentication
+    path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.portal_logout, name='logout'),
 
     # Services Management

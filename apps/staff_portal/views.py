@@ -3,6 +3,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_http_methods
@@ -32,6 +33,34 @@ from .permissions import (
 )
 from .block_templates import get_all_templates, get_template
 from .forms import NewsArticleForm, ProjectForm, ProjectImageFormSet, DocumentForm, StaffMemberForm
+
+
+class CustomLoginView(LoginView):
+    """Custom login view for staff portal"""
+    template_name = 'staff_portal/login.html'
+    redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        """Handle remember me functionality"""
+        remember_me = self.request.POST.get('remember_me')
+
+        if not remember_me:
+            # Session expires when browser closes (default Django behavior)
+            self.request.session.set_expiry(0)
+        else:
+            # Session lasts for 30 days
+            self.request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days in seconds
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        """Redirect to staff portal dashboard after login"""
+        # Check if there's a 'next' parameter
+        next_url = self.request.GET.get('next') or self.request.POST.get('next')
+        if next_url:
+            return next_url
+        # Default to portal dashboard
+        return '/portal/'
 
 
 @portal_user_required
@@ -908,4 +937,4 @@ def portal_logout(request):
     """
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
-    return redirect('/admin/login/')
+    return redirect('/login/')

@@ -1,0 +1,173 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Staff Login | {{ site_settings.site_name }}</title>
+
+    <!-- Favicon -->
+    {% if site_settings.favicon %}
+        <link rel="icon" href="{{ site_settings.favicon.url }}">
+    {% endif %}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    {% tailwind_css %}
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="font-primary bg-amma-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <!-- Login Card -->
+        <div class="bg-white rounded-amma-lg shadow-amma-medium p-8">
+
+            <!-- Logo and Site Name -->
+            <div class="text-center mb-8">
+                {% if site_settings.logo %}
+                <div class="flex justify-center mb-4">
+                    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="w-20 h-20 object-contain">
+                </div>
+                {% endif %}
+                <h1 class="font-secondary font-bold text-2xl text-amma-black mb-2">
+                    {{ site_settings.site_name }}
+                </h1>
+                <p class="text-amma-gray text-sm">
+                    Staff Portal Login
+                </p>
+            </div>
+
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-amma" role="alert">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        {% if form.non_field_errors %}
+                            {{ form.non_field_errors.0 }}
+                        {% else %}
+                            <p class="font-medium">Login Failed</p>
+                            <p class="text-sm">Please check your username and password and try again.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="post" action="{% url 'staff_portal:login' %}" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-amma-black mb-2">
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        name="{{ form.username.name }}"
+                        id="{{ form.username.id_for_label }}"
+                        class="w-full px-4 py-3 border border-amma-gray-light rounded-amma focus:ring-2 focus:ring-amma-gold focus:border-amma-gold transition-colors duration-200 {% if form.username.errors %}border-red-500{% endif %}"
+                        placeholder="Enter your username"
+                        required
+                        autofocus
+                        {% if form.username.value %}value="{{ form.username.value }}"{% endif %}
+                    >
+                    {% if form.username.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div x-data="{ showPassword: false }">
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-amma-black mb-2">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            :type="showPassword ? 'text' : 'password'"
+                            name="{{ form.password.name }}"
+                            id="{{ form.password.id_for_label }}"
+                            class="w-full px-4 py-3 pr-12 border border-amma-gray-light rounded-amma focus:ring-2 focus:ring-amma-gold focus:border-amma-gold transition-colors duration-200 {% if form.password.errors %}border-red-500{% endif %}"
+                            placeholder="Enter your password"
+                            required
+                        >
+                        <button
+                            type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-amma-gray hover:text-amma-gold transition-colors duration-200"
+                            :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                        >
+                            <!-- Eye Icon (show when password is hidden) -->
+                            <svg x-show="!showPassword" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <!-- Eye-Off Icon (show when password is visible) -->
+                            <svg x-show="showPassword" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div class="flex items-center">
+                    <input
+                        type="checkbox"
+                        name="remember_me"
+                        id="remember_me"
+                        class="w-4 h-4 text-amma-gold border-amma-gray-light rounded focus:ring-amma-gold focus:ring-2"
+                    >
+                    <label for="remember_me" class="ml-2 block text-sm text-amma-black">
+                        Remember me for 30 days
+                    </label>
+                </div>
+
+                <!-- Hidden next field -->
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    class="w-full bg-amma-gold hover:bg-amma-gold-dark text-amma-black font-semibold py-3 px-4 rounded-amma transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amma-gold focus:ring-offset-2"
+                >
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Additional Links -->
+            <div class="mt-6 text-center">
+                <a href="/" class="text-sm text-amma-gold hover:text-amma-gold-dark transition-colors duration-200">
+                    &larr; Back to Website
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <p class="text-center text-sm text-amma-gray mt-6">
+            &copy; {{ site_settings.site_name }}. All rights reserved.
+        </p>
+    </div>
+
+</body>
+</html>

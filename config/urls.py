@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.staff_portal.views import CustomLoginView
 
 # Customize admin site
 admin.site.site_header = "AMMA CMS Administration"
@@ -36,6 +37,9 @@ urlpatterns = [
     path('documents/', include('apps.documents.urls')),
     path('gallery/', include('apps.gallery.urls')),
     path('contact/', include('apps.contact.urls')),
+
+    # Authentication (custom login at root level)
+    path('login/', CustomLoginView.as_view(), name='login'),
 
     # Staff Portal (staff-only access)
     path('portal/', include('apps.staff_portal.urls')),
