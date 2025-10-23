@@ -1,3 +1,4 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,24 +7,7 @@
     <title>{% block title %}AMMA CMS Portal{% endblock %} - AMMA CMS</title>
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'amma-gold': '#D4AF37',
-                        'amma-gold-light': '#F5E6C8',
-                        'amma-gold-dark': '#B8941F',
-                        'amma-gray': '#4A5568',
-                        'amma-gray-light': '#2D3748',
-                        'amma-white': '#F7FAFC',
-                        'amma-black': '#1A202C',
-                    }
-                }
-            }
-        }
-    </script>
+    {% tailwind_css %}
 
     <!-- Alpine.js for interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
